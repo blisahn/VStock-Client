@@ -9,16 +9,15 @@ import { CustomToastrService, ToastrPosition, ToastrType } from '../../../../ser
 
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [
-    ModalComponent,
-    ReactiveFormsModule,
-    CommonModule,
-    FormsModule
-  ],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+    selector: 'app-login',
+    imports: [
+        ModalComponent,
+        ReactiveFormsModule,
+        CommonModule,
+        FormsModule
+    ],
+    templateUrl: './login.component.html',
+    styleUrl: './login.component.css'
 })
 export class LoginComponent {
   loginUserDto: LoginUserDto = { usernameOrEmail: '', password: '' };

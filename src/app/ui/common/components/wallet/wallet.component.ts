@@ -8,11 +8,10 @@ import { PagedResult } from '../../../../contract/helpers/PagedResult';
 import { GetTransactionDetailResponse } from '../../../../contract/transaction/GetTransactionDetailResponse';
 
 @Component({
-  selector: 'app-wallet',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './wallet.component.html',
-  styleUrl: './wallet.component.css'
+    selector: 'app-wallet',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './wallet.component.html',
+    styleUrl: './wallet.component.css'
 })
 export class WalletComponent implements OnInit {
 

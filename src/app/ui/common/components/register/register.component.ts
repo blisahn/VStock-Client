@@ -6,13 +6,13 @@ import { CommonModule } from '@angular/common';
 import { UserService } from '../../../../services/models/user/user.service';
 
 @Component({
-  selector: 'app-register',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    CommonModule],
-  templateUrl: './register.component.html',
-  styleUrl: './register.component.css'
+    selector: 'app-register',
+    imports: [
+        ReactiveFormsModule,
+        CommonModule
+    ],
+    templateUrl: './register.component.html',
+    styleUrl: './register.component.css'
 })
 export class RegisterComponent {
 

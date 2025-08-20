@@ -10,10 +10,9 @@ import { UpdateProfileDto } from '../../../../../contract/user/common/UpdateProf
 
 
 @Component({
-  selector: 'app-profile-settings',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './profile-details.component.html',
+    selector: 'app-profile-settings',
+    imports: [CommonModule, ReactiveFormsModule],
+    templateUrl: './profile-details.component.html'
 })
 export class ProfileDetailsComponent implements OnInit {
 

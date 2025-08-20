@@ -13,11 +13,10 @@ import { AssignRoleDto } from '../../../../../../../contract/user/admin/AssignRo
 
 
 @Component({
-  selector: 'app-user-details',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './user-details.component.html',
-  styleUrl: './user-details.component.css'
+    selector: 'app-user-details',
+    imports: [CommonModule, ReactiveFormsModule],
+    templateUrl: './user-details.component.html',
+    styleUrl: './user-details.component.css'
 })
 export class UserDetailsComponent implements OnInit {
 

@@ -3,11 +3,10 @@ import { UserDetailsComponent } from "../user-details.component";
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-user-details-modal',
-  standalone: true,
-  imports: [UserDetailsComponent, CommonModule],
-  templateUrl: './user-details-modal.component.html',
-  styleUrls: ['./user-details-modal.component.css'] // styleUrl → styleUrls
+    selector: 'app-user-details-modal',
+    imports: [UserDetailsComponent, CommonModule],
+    templateUrl: './user-details-modal.component.html',
+    styleUrls: ['./user-details-modal.component.css'] // styleUrl → styleUrls
 })
 export class UserDetailsModalComponent {
   @Input() id = '';

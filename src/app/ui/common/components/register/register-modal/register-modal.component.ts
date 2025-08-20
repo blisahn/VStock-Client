@@ -3,11 +3,10 @@ import { RegisterComponent } from "../register.component";
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'register-modal',
-  standalone: true,
-  imports: [RegisterComponent, CommonModule],
-  templateUrl: './register-modal.component.html',
-  styleUrl: './register-modal.component.css'
+    selector: 'register-modal',
+    imports: [RegisterComponent, CommonModule],
+    templateUrl: './register-modal.component.html',
+    styleUrl: './register-modal.component.css'
 })
 export class ModalComponent {
   showRegister: boolean = false;

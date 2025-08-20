@@ -6,11 +6,10 @@ import { UserAuthService } from '../../../../services/models/user/user-auth.serv
 import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-avatar',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
-  templateUrl: './avatar.component.html',
-  styleUrl: './avatar.component.css'
+    selector: 'app-avatar',
+    imports: [CommonModule, RouterLink],
+    templateUrl: './avatar.component.html',
+    styleUrl: './avatar.component.css'
 })
 export class AvatarComponent implements OnInit {
 

@@ -11,11 +11,10 @@ import { RecentTrade } from '../../../../../contract/market/common/RecentTrade';
 type DepthRow = { price: number; quantity: number; total: number; cum: number; perc: number };
 
 @Component({
-  selector: 'app-asset-details',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './asset-details.component.html',
-  styleUrl: './asset-details.component.css'
+    selector: 'app-asset-details',
+    imports: [CommonModule],
+    templateUrl: './asset-details.component.html',
+    styleUrl: './asset-details.component.css'
 })
 export class AssetDetailsComponent implements OnInit, OnDestroy {
   symbol: string | null = null;

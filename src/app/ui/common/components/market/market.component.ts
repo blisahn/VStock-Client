@@ -15,11 +15,10 @@ interface RowQuote extends CryptoQuote {
 }
 
 @Component({
-  selector: 'app-market',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './market.component.html',
-  styleUrl: './market.component.css'
+    selector: 'app-market',
+    imports: [CommonModule, FormsModule, RouterLink],
+    templateUrl: './market.component.html',
+    styleUrl: './market.component.css'
 })
 export class MarketComponent implements OnInit, OnDestroy {
   marketData: RowQuote[] = [];

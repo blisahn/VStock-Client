@@ -10,11 +10,10 @@ import { PagedResult } from '../../../../../../contract/helpers/PagedResult';
 import { UserListItemContract } from '../../../../../../contract/user/admin/UserListItemContract';
 
 @Component({
-  selector: 'app-admin-users-list',
-  standalone: true,
-  imports: [CommonModule, UserDetailsModalComponent, ReactiveFormsModule],
-  templateUrl: './users.list.table.component.html',
-  styleUrl: './users.list.table.component.css'
+    selector: 'app-admin-users-list',
+    imports: [CommonModule, UserDetailsModalComponent, ReactiveFormsModule],
+    templateUrl: './users.list.table.component.html',
+    styleUrl: './users.list.table.component.css'
 })
 export class UsersTableComponent implements OnInit {
 

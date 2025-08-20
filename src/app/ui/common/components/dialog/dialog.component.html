@@ -1,0 +1,30 @@
+<!-- Updated dialog.component.html -->
+<input class="modal-toggle" [id]="modalId" type="checkbox" [checked]="open" (change)="onCheckboxToggle($event)" />
+
+<div class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box bg-base-100 relative max-w-md">
+        <!-- Close Button -->
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-3 top-3" (click)="cancel()">
+            ✕
+        </button>
+
+        <!-- Dialog Content -->
+        <div class="py-4">
+            <h2 class="text-xl font-bold text-base-content mb-4">{{ dialogOptions.title }}</h2>
+            <p class="text-base-content/80 mb-6">{{ dialogOptions.message }}</p>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3 justify-end">
+                <button class="btn btn-ghost" (click)="cancel()">
+                    {{ dialogOptions.cancelText }}
+                </button>
+                <button id="app-global-dialog-confirm" class="btn btn-error" (click)="confirm()">
+                    {{ dialogOptions.confirmText }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Backdrop -->
+    <label class="modal-backdrop" (click)="cancel()"></label>
+</div>

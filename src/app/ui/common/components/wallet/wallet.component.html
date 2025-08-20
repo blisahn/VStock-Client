@@ -1,0 +1,163 @@
+<div class="max-w-5xl mx-auto p-6">
+    <!-- Wallet Balance Card -->
+    <div class="bg-base-100 rounded-lg shadow-md border border-base-300 p-6 mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-base-content">Cüzdan</h2>
+                <p class="text-base-content/60 mt-1">Para yatırın ve işlemlerinizi takip edin</p>
+            </div>
+            <div class="stats shadow">
+                <div class="stat">
+                    <div class="stat-title text-xs">Bakiye</div>
+                    <div class="stat-value text-lg text-success">{{ balance | currency:'USD' }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deposit Form -->
+        <form #depositForm="ngForm" (ngSubmit)="makeDeposit(depositAmount)" class="max-w-md" novalidate>
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-medium">Para Yatır</span>
+                </label>
+                <input type="number" [(ngModel)]="depositAmount" name="depositAmount" placeholder="Miktar girin"
+                    required min="0.01" step="0.01" class="input input-bordered w-full h-12" #amountCtrl="ngModel" />
+
+                <div class="label" *ngIf="amountCtrl.invalid && (amountCtrl.dirty || amountCtrl.touched)">
+                    <span class="label-text-alt text-error" *ngIf="amountCtrl.errors?.['required']">
+                        Tutar zorunludur.
+                    </span>
+                    <span class="label-text-alt text-error" *ngIf="amountCtrl.errors?.['min']">
+                        Tutar 0.01'den büyük olmalı.
+                    </span>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary w-full h-12" [disabled]="depositForm.invalid">
+                    Para Yatır
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="bg-base-100 rounded-lg shadow-md border border-base-300">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-base-300">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-bold text-base-content">İşlem Geçmişi</h3>
+                    <p class="text-sm text-base-content/60 mt-1" *ngIf="transactionHistory?.items?.length">
+                        Toplam {{ transactionHistory?.items?.length }} kayıt
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Content -->
+        <div class="overflow-x-auto" *ngIf="transactionHistory?.totalCount; else noDeposits">
+            <!-- Desktop Table -->
+            <table class="table table-zebra w-full hidden md:table">
+                <thead class="sticky top-0 bg-base-100 z-10">
+                    <tr>
+                        <th class="text-left font-semibold">Tarih</th>
+                        <th class="text-left font-semibold">İşlem</th>
+                        <th class="text-center font-semibold">Sembol</th>
+                        <th class="text-right font-semibold">Miktar</th>
+                        <th class="text-right font-semibold">Birim Fiyat</th>
+                        <th class="text-right font-semibold">Toplam</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let d of transactionHistory!.items" class="hover:bg-base-200 transition-colors">
+                        <td class="whitespace-nowrap text-sm">
+                            {{ d.executedAt | date:'medium' }}
+                        </td>
+                        <td>
+                            <div class="badge badge-sm" [ngClass]="{
+                                     'badge-success': d.type === 'Deposit',
+                                     'badge-error': d.type === 'Withdraw',
+                                     'badge-info': d.type === 'Buy',
+                                     'badge-warning': d.type === 'Sell'
+                                 }">
+                                {{ d.type }}
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span class="font-mono font-medium">{{ d.symbol }}</span>
+                        </td>
+                        <td class="text-right font-medium">
+                            {{ d.quantity | number:'1.0-8' }}
+                        </td>
+                        <td class="text-right">
+                            {{ d.price | currency:(d.symbol || 'USD'):'symbol':'1.2-6' }}
+                        </td>
+                        <td class="text-right font-bold">
+                            {{ (d.quantity * d.price) | currency:(d.symbol || 'USD'):'symbol':'1.2-2' }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Mobile Cards -->
+            <div class="md:hidden p-4 space-y-4">
+                <div *ngFor="let d of transactionHistory?.items" class="card card-compact bg-base-200 shadow-sm">
+                    <div class="card-body">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-sm text-base-content/60">
+                                {{ d.executedAt | date:'short' }}
+                            </span>
+                            <div class="badge badge-sm" [ngClass]="{
+                                     'badge-success': d.type === 'Deposit',
+                                     'badge-error': d.type === 'Withdraw',
+                                     'badge-info': d.type === 'Buy',
+                                     'badge-warning': d.type === 'Sell'
+                                 }">
+                                {{ d.type }}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-base-content/60">Sembol:</span>
+                                <span class="font-mono font-medium">{{ d.symbol }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-base-content/60">Miktar:</span>
+                                <span class="font-medium">{{ d.quantity | number:'1.0-8' }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-base-content/60">Fiyat:</span>
+                                <span>{{ d.price | currency:(d.symbol || 'USD'):'symbol':'1.2-6' }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-base-content/60">Toplam:</span>
+                                <span class="font-bold">
+                                    {{ (d.quantity * d.price) | currency:(d.symbol || 'USD'):'symbol':'1.2-2' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <ng-template #noDeposits>
+            <div class="flex flex-col items-center justify-center py-16 px-4">
+                <div class="w-24 h-24 mb-4 rounded-full bg-base-300 flex items-center justify-center">
+                    <svg class="w-12 h-12 text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                        </path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Henüz İşlem Yok</h3>
+                <p class="text-sm text-base-content/60 text-center max-w-md">
+                    İlk para yatırma işleminizi yapın ve işlem geçmişiniz burada görünecek.
+                </p>
+            </div>
+        </ng-template>
+    </div>
+</div>

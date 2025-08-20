@@ -1,0 +1,103 @@
+<div class="min-h-screen flex items-center justify-center bg-background text-foreground">
+    <div class="mx-auto flex w-full max-w-sm flex-col gap-6">
+        <div class="flex flex-col items-center">
+            <h1 class="text-3xl font-semibold">Kayit Ol</h1>
+        </div>
+        <form [formGroup]="registerForm" (ngSubmit)="register(registerForm.value)" class="space-y-4">
+            <div class="form-group">
+
+                <!-- Ad-Soyad -->
+                <div class="form-control relative w-full">
+                    <input type="text" class="input   input-lg max-w-full pl-10" formControlName="fullName"
+                        placeholder=" Ad Soyad" />
+                    <span class="absolute inset-y-0 left-3 inline-flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 text-gray-500" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5.121 17.804A10.95 10.95 0 0112 15c2.21 0 4.253.635 5.879 1.719M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </span>
+                </div>
+                <div
+                    *ngIf="registerForm.get('fullName')?.invalid && (registerForm.get('fullName')?.dirty || registerForm.get('fullName')?.touched)">
+                    <label class="form-label">
+                        <small>
+                            <span class="form-label-alt">Lutfen Ad soyad kismini bos birakmayin.</span>
+                        </small>
+                    </label>
+                </div>
+                <!-- Kullanici Adi -->
+                <div class="form-control relative w-full">
+                    <input type="text" class="input input-lg max-w-full pl-10" formControlName="username"
+                        placeholder="Kullanici Adi" />
+                    <span class="absolute inset-y-0 left-3 inline-flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 text-gray-500" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 11c0 1.657-1.343 3-3 3S6 12.657 6 11s1.343-3 3-3 3 1.343 3 3zM18 11c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zM12 14v2c0 1.657 1.343 3 3 3s3-1.343 3-3v-2" />
+                        </svg>
+                    </span>
+                </div>
+                <div
+                    *ngIf="registerForm.get('username')?.invalid && (registerForm.get('username')?.dirty || registerForm.get('username')?.touched)">
+                    <label class="form-label">
+                        <small>
+                            <span class="form-label-alt">Lutfen gecerli bir kullanici adi girin.</span>
+                        </small>
+                    </label>
+                </div>
+                <!-- Email -->
+                <div class="form-control relative w-full">
+                    <input type="email" class="input input-lg max-w-full pl-10" formControlName="email"
+                        placeholder="Mail Adresi" />
+                    <span class="absolute inset-y-0 left-3 inline-flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-content3" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                        </svg>
+                    </span>
+
+                </div>
+                <div
+                    *ngIf="registerForm.get('email')?.invalid && (registerForm.get('email')?.dirty || registerForm.get('email')?.touched)">
+                    <label class="form-label">
+                        <small>
+                            <span class="form-label-alt">Lutfen gecerli bir mail adresi yazin.</span>
+                        </small>
+                    </label>
+                </div>
+                <!-- Sifre -->
+                <div class="form-control relative w-full">
+                    <input type="password" class="input input-lg max-w-full pl-10" formControlName="password"
+                        placeholder="Sifre" />
+                    <span class="absolute inset-y-0 left-3 inline-flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-content3" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </span>
+                </div>
+                <div
+                    *ngIf="registerForm.get('password')?.invalid && (registerForm.get('password')?.dirty || registerForm.get('password')?.touched)">
+                    <label class="form-label">
+                        <small>
+                            <span class="form-label-alt">Lutfen bir sifre girin.</span>
+                        </small>
+                    </label>
+                </div>
+                <!-- Buton -->
+                <div class="form-field pt-5">
+                    <div class="form-control justify-between">
+                        <button type="submit" class="btn w-full">Kayit Ol</button>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+</div>

@@ -1,0 +1,277 @@
+<div class="min-h-screen bg-base-200 p-4">
+    <!-- Üst Bilgi Çubuğu -->
+    <div class="bg-base-100 rounded-lg shadow-md p-4 mb-4">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center gap-6">
+                <h1 class="text-2xl font-bold">{{symbol}}</h1>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-semibold" [ngClass]="{
+                        'text-success': cryptoQuote?.isUpdated && (cryptoQuote?.price ?? 0) > (mid ?? 0),
+                        'text-error': cryptoQuote?.isUpdated && (cryptoQuote?.price ?? 0) < (mid ?? 0)
+                    }">
+                        {{ (cryptoQuote?.price ?? mid) | currency:'USD':'symbol':'1.2-2' }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex gap-6 text-sm">
+                <div>
+                    <span class="text-base-content/60">Spread:</span>
+                    <span class="ml-2 font-medium">{{ spread | currency:'USD':'symbol':'1.2-4' }}</span>
+                </div>
+                <div>
+                    <span class="text-base-content/60">Mid Fiyat:</span>
+                    <span class="ml-2 font-medium">{{ mid | currency:'USD':'symbol':'1.2-2' }}</span>
+                </div>
+                <div *ngIf="graphQuote">
+                    <span class="text-base-content/60">Hacim:</span>
+                    <span class="ml-2 font-medium">{{ graphQuote.volume | number:'1.0-2' }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ana İçerik Alanı -->
+    <div class="flex gap-4">
+        <!-- Sol Taraf - Grafik ve Piyasa İşlemleri -->
+        <div class="flex-1 flex flex-col gap-4">
+            <!-- Grafik Kartı -->
+            <div class="bg-base-100 rounded-lg shadow-md p-4">
+                <div class="mb-4">
+                    <div class="btn-group">
+                        <button class="btn btn-sm">15dk</button>
+                        <button class="btn btn-sm btn-active">1S</button>
+                        <button class="btn btn-sm">4S</button>
+                        <button class="btn btn-sm">1G</button>
+                        <button class="btn btn-sm">1H</button>
+                    </div>
+                </div>
+
+                <div class="h-96 bg-base-200 rounded-lg flex items-center justify-center">
+                    <div class="text-center">
+                        <h3 class="text-xl font-semibold mb-2">GRAFİK BURAYA GELECEK</h3>
+                        <p class="text-base-content/60">Chart component will be integrated here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Piyasa Alım Satımları -->
+            <div class="bg-base-100 rounded-lg shadow-md p-4">
+                <h2 class="text-lg font-semibold mb-3">PIYASA ALIM SATIMLARI</h2>
+                <div class="recent-trades-container overflow-x-auto" style="max-height: 280px;">
+                    <table class="table table-sm">
+                        <thead class="sticky top-0 bg-base-100">
+                            <tr>
+                                <th>Fiyat (USDT)</th>
+                                <th>Miktar ({{symbol}})</th>
+                                <th>Zaman</th>
+                                <th class="text-right">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let t of recentTrades; trackBy: trackTrade"
+                                class="hover:bg-base-200 transition-colors">
+                                <td
+                                    [ngClass]="t.side === 'buy' ? 'text-success font-medium' : 'text-error font-medium'">
+                                    {{ t.price | number:'1.2-8' }}
+                                </td>
+                                <td>{{ t.quantity | number:'1.6-6' }}</td>
+                                <td>{{ t.time }}</td>
+                                <td class="text-right">
+                                    <span class="badge badge-sm"
+                                        [ngClass]="t.side === 'buy' ? 'badge-success' : 'badge-error'">
+                                        {{ t.side === 'buy' ? 'AL' : 'SAT' }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Taraf - Emir Defteri ve Al/Sat -->
+        <div class="w-80 flex flex-col gap-4">
+            <!-- Emir Defteri -->
+            <div class="bg-base-100 rounded-lg shadow-md p-4">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-lg font-semibold">EMİR DEFTERİ</h2>
+                    <span class="text-xs text-base-content/60">Spread: {{ spread | currency:'USD':'symbol':'1.2-4'
+                        }}</span>
+                </div>
+
+                <div class="space-y-2">
+                    <!-- Başlık -->
+                    <div class="grid grid-cols-3 text-xs text-base-content/60 px-2 pb-1 border-b border-base-300">
+                        <span>Fiyat</span>
+                        <span class="text-right">Miktar</span>
+                        <span class="text-right">Toplam</span>
+                    </div>
+
+                    <!-- Satış Emirleri -->
+                    <div class="order-book-container" style="max-height: 200px; overflow-y: auto;">
+                        <div *ngFor="let r of asksView.slice().reverse(); trackBy: trackByPrice"
+                            class="grid grid-cols-3 text-sm py-1 px-2 hover:bg-base-200 cursor-pointer transition-colors"
+                            (click)="pick(r.price, r.quantity)"
+                            [style.background]="'linear-gradient(to left, rgba(239, 68, 68, 0.15) ' + r.perc + '%, transparent ' + r.perc + '%)'">
+                            <span class="text-error font-medium">{{ r.price | number:'1.2-2' }}</span>
+                            <span class="text-right">{{ r.quantity | number:'1.4-4' }}</span>
+                            <span class="text-right text-base-content/70">{{ r.cum | number:'1.2-2' }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Mevcut Fiyat -->
+                    <div class="py-3 px-2 bg-base-200 rounded-lg text-center">
+                        <span class="text-2xl font-bold" [ngClass]="{
+                            'text-success': cryptoQuote?.isUpdated && (cryptoQuote?.price ?? 0) > (mid ?? 0),
+                            'text-error': cryptoQuote?.isUpdated && (cryptoQuote?.price ?? 0) < (mid ?? 0)
+                        }">
+                            {{ (cryptoQuote?.price ?? mid) | currency:'USD':'symbol':'1.2-2' }}
+                        </span>
+                    </div>
+
+                    <!-- Alış Emirleri -->
+                    <div class="order-book-container" style="max-height: 200px; overflow-y: auto;">
+                        <div *ngFor="let r of bidsView; trackBy: trackByPrice"
+                            class="grid grid-cols-3 text-sm py-1 px-2 hover:bg-base-200 cursor-pointer transition-colors"
+                            (click)="pick(r.price, r.quantity)"
+                            [style.background]="'linear-gradient(to right, rgba(34, 197, 94, 0.15) ' + r.perc + '%, transparent ' + r.perc + '%)'">
+                            <span class="text-success font-medium">{{ r.price | number:'1.2-2' }}</span>
+                            <span class="text-right">{{ r.quantity | number:'1.4-4' }}</span>
+                            <span class="text-right text-base-content/70">{{ r.cum | number:'1.2-2' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Al/Sat Formu -->
+            <div class="bg-base-100 rounded-lg shadow-md p-4">
+                <!-- Tab Başlıkları -->
+                <div class="flex gap-2 mb-4">
+                    <button class="flex-1 btn btn-sm btn-ghost border-b-2 border-success">Limit</button>
+                    <button class="flex-1 btn btn-sm btn-ghost">Market</button>
+                    <button class="flex-1 btn btn-sm btn-ghost">Stop Limit</button>
+                </div>
+
+                <!-- Al ve Sat Panelleri -->
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- AL Paneli -->
+                    <div class="space-y-3">
+                        <div class="form-control">
+                            <label class="label py-1">
+                                <span class="label-text text-xs">Fiyat</span>
+                                <span class="label-text-alt text-xs">USDT</span>
+                            </label>
+                            <input type="number" class="input input-bordered input-sm bg-base-200/50"
+                                [value]="selectedPrice ?? bestAsk ?? cryptoQuote?.price" placeholder="114,225.51" />
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label py-1">
+                                <span class="label-text text-xs">Miktar</span>
+                                <span class="label-text-alt text-xs">{{symbol}}</span>
+                            </label>
+                            <input type="number" class="input input-bordered input-sm bg-base-200/50"
+                                [value]="selectedQty ?? 0" placeholder="0.00" />
+                        </div>
+
+                        <!-- Slider -->
+                        <div class="py-2">
+                            <input type="range" min="0" max="100" value="0" class="range range-xs range-success" />
+                            <div class="flex justify-between text-xs px-1 mt-1">
+                                <span>0%</span>
+                                <span>25%</span>
+                                <span>50%</span>
+                                <span>75%</span>
+                                <span>100%</span>
+                            </div>
+                        </div>
+
+                        <!-- TP/SL Checkbox -->
+                        <div class="form-control">
+                            <label class="label cursor-pointer py-1">
+                                <span class="label-text text-xs">TP/SL</span>
+                                <input type="checkbox" class="checkbox checkbox-xs" />
+                            </label>
+                        </div>
+
+                        <!-- Özet Bilgiler -->
+                        <div class="space-y-1 text-xs">
+                            <div class="flex justify-between">
+                                <span class="text-base-content/60">Avbl</span>
+                                <span>- USDT</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-base-content/60">Max Buy</span>
+                                <span>-- {{symbol}}</span>
+                            </div>
+                        </div>
+
+                        <!-- Al Butonu -->
+                        <button class="btn btn-success btn-sm w-full">
+                            AL
+                        </button>
+                    </div>
+
+                    <!-- SAT Paneli -->
+                    <div class="space-y-3">
+                        <div class="form-control">
+                            <label class="label py-1">
+                                <span class="label-text text-xs">Fiyat</span>
+                                <span class="label-text-alt text-xs">USDT</span>
+                            </label>
+                            <input type="number" class="input input-bordered input-sm bg-base-200/50"
+                                [value]="selectedPrice ?? bestBid ?? cryptoQuote?.price" placeholder="114,225.51" />
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label py-1">
+                                <span class="label-text text-xs">Miktar</span>
+                                <span class="label-text-alt text-xs">{{symbol}}</span>
+                            </label>
+                            <input type="number" class="input input-bordered input-sm bg-base-200/50"
+                                [value]="selectedQty ?? 0" placeholder="0.00" />
+                        </div>
+
+                        <!-- Slider -->
+                        <div class="py-2">
+                            <input type="range" min="0" max="100" value="0" class="range range-xs range-error" />
+                            <div class="flex justify-between text-xs px-1 mt-1">
+                                <span>0%</span>
+                                <span>25%</span>
+                                <span>50%</span>
+                                <span>75%</span>
+                                <span>100%</span>
+                            </div>
+                        </div>
+
+                        <!-- TP/SL Checkbox -->
+                        <div class="form-control">
+                            <label class="label cursor-pointer py-1">
+                                <span class="label-text text-xs">TP/SL</span>
+                                <input type="checkbox" class="checkbox checkbox-xs" />
+                            </label>
+                        </div>
+
+                        <!-- Özet Bilgiler -->
+                        <div class="space-y-1 text-xs">
+                            <div class="flex justify-between">
+                                <span class="text-base-content/60">Avbl</span>
+                                <span>- {{symbol}}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-base-content/60">Max Sell</span>
+                                <span>-- USDT</span>
+                            </div>
+                        </div>
+
+                        <!-- Sat Butonu -->
+                        <button class="btn btn-error btn-sm w-full">
+                            SAT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

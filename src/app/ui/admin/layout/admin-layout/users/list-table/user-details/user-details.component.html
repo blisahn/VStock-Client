@@ -1,0 +1,105 @@
+<div class="w-full max-w-2xl">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-base-content">Kullanıcı Detayları</h2>
+        <p class="text-base-content/60 mt-1">Kullanıcı bilgilerini düzenleyin</p>
+    </div>
+
+    <form class="space-y-6" [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+        <!-- ID (Read-only) -->
+        <div class="form-control w-full">
+            <label class="label">
+                <span class="label-text font-medium text-base-content/70">ID</span>
+            </label>
+            <input class="input input-bordered w-full bg-base-200 text-base-content/60" readonly type="text"
+                placeholder="Kullanıcı ID" formControlName="id" />
+        </div>
+
+        <!-- Full Name -->
+        <div class="form-control w-full">
+            <label class="label">
+                <span class="label-text font-medium">Ad Soyad</span>
+            </label>
+            <input class="input input-bordered w-full h-12" type="text" placeholder="Ad ve soyad"
+                formControlName="fullName" />
+        </div>
+
+        <!-- Username -->
+        <div class="form-control w-full">
+            <label class="label">
+                <span class="label-text font-medium">Kullanıcı Adı</span>
+            </label>
+            <input class="input input-bordered w-full h-12" type="text" placeholder="kullaniciadi"
+                formControlName="userName" />
+        </div>
+
+        <!-- Email -->
+        <div class="form-control w-full">
+            <label class="label">
+                <span class="label-text font-medium">E-posta</span>
+            </label>
+            <input class="input input-bordered w-full h-12" type="email" placeholder="ornek@mail.com"
+                formControlName="email" />
+        </div>
+
+        <!-- Roles -->
+        <!-- <div class="form-control w-full">
+            <label class="label">
+                <span class="label-text font-medium">Roller</span>
+            </label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 bg-base-200 rounded-lg">
+                <label *ngFor="let r of availableRoles" class="label cursor-pointer justify-start gap-3">
+                    <input type="checkbox" class="checkbox checkbox-primary" [checked]="hasRoleSelected(r)"
+                        (change)="onRoleToggle(r, $any($event.target).checked)" />
+                    <span class="label-text">{{ r }}</span>
+                </label>
+            </div>
+            <div class="label">
+                <span class="label-text-alt text-base-content/60">Kullanıcı için uygun rolleri seçin</span>
+            </div>
+        </div> -->
+        <!-- Alternative: Dropdown Multi-Select -->
+        <div class="form-control w-full">
+            <label class="label">
+                <span class="label-text font-medium">Roller</span>
+            </label>
+            <div class="dropdown w-full">
+                <div tabindex="0" role="button" class="btn btn-outline w-full justify-between">
+                    <span *ngIf="getSelectedRolesCount() === 0" class="text-base-content/60">
+                    </span>
+                    <span *ngIf="getSelectedRolesCount() > 0" class="text-left">
+                        {{ getSelectedRolesText() }}
+                    </span>
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"></path>
+                    </svg>
+                </div>
+                <ul tabindex="0"
+                    class="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow border border-base-300">
+                    <li *ngFor="let r of availableRoles">
+                        <label class="label cursor-pointer justify-start gap-3 py-2">
+                            <input type="checkbox" class="checkbox checkbox-primary checkbox-sm"
+                                [checked]="hasRoleSelected(r)"
+                                (change)="onRoleToggle(r, $any($event.target).checked)" />
+                            <span class="label-text">{{ r }}</span>
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="label">
+                <span class="label-text-alt text-base-content/60">Birden fazla rol seçebilirsiniz</span>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-end gap-3 pt-6">
+            <button type="button" class="btn btn-ghost px-6">
+                İptal
+            </button>
+            <button type="button" class="btn btn-primary px-6" (click)="ask()"
+                [disabled]="profileForm.invalid || profileForm.pristine || isSaving">
+                <span class="loading loading-spinner loading-sm mr-2" *ngIf="isSaving"></span>
+                {{ isSaving ? 'Kaydediliyor...' : 'Güncelle' }}
+            </button>
+        </div>
+    </form>
+</div>

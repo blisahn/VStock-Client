@@ -1,0 +1,23 @@
+<article>
+    <button class="btn btn-outline w-full" (click)="openRegisterModal()">
+        Hesabınız yok mu? Kayıt olun
+    </button>
+
+    <input class="modal-toggle" id="modal-1" type="checkbox" [checked]="showRegister"
+        (change)="onModalToggle($event)" />
+
+    <div class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box bg-base-100 relative max-w-md">
+            <!-- Close Button -->
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-3 top-3" (click)="closeRegisterModal()">
+                ✕
+            </button>
+
+            <!-- Register Component -->
+            <app-register *ngIf="showRegister"></app-register>
+        </div>
+
+        <!-- Modal Backdrop -->
+        <label class="modal-backdrop" (click)="closeRegisterModal()"></label>
+    </div>
+</article>

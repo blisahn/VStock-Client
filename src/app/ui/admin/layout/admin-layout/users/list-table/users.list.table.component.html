@@ -1,0 +1,89 @@
+<!-- Users Table -->
+<div class="bg-base-100 rounded-lg shadow-md border border-base-300 p-6">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+        <div>
+            <h3 class="text-xl font-bold text-base-content">Kullanıcılar</h3>
+            <p class="text-sm text-base-content/60 mt-1">Toplam: {{ totalUserCount }} kullanıcı</p>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+        <table class="table table-zebra w-full">
+            <thead class="sticky top-0 bg-base-100 z-10">
+                <tr>
+                    <th class="w-12 font-semibold">#</th>
+                    <th class="font-semibold">ID</th>
+                    <th class="font-semibold">Ad Soyad</th>
+                    <th class="font-semibold">Kullanıcı Adı</th>
+                    <th class="font-semibold">E-posta</th>
+                    <th class="font-semibold">Roller</th>
+                    <th class="w-32 text-right font-semibold">İşlem</th>
+                </tr>
+            </thead>
+            <tbody *ngIf="users?.items?.length; else emptyState">
+                <tr *ngFor="let u of users?.items; let i = index" class="hover:bg-base-200 transition-colors">
+                    <td class="text-base-content/60">{{ i + 1 }}</td>
+                    <td class="font-mono text-xs text-base-content/80">{{ u.id }}</td>
+                    <td class="font-medium">{{ u.fullName }}</td>
+                    <td>{{ u.userName }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>
+                        <div class="flex flex-wrap gap-1">
+                            <div *ngFor="let r of (u.roles ?? [])" class="badge badge-outline badge-sm">
+                                {{ r }}
+                            </div>
+                            <span *ngIf="!(u.roles?.length)" class="text-base-content/40">—</span>
+                        </div>
+                    </td>
+                    <td class="text-right">
+                        <div class="flex justify-end gap-1">
+                            <button class="btn btn-ghost btn-sm" [disabled]="!u.id" (click)="copyId(u.id!)"
+                                title="ID'yi kopyala">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+
+                            </button>
+                            <button class="btn btn-ghost btn-sm" (click)="openUpdateUserModal(u.id!)"
+                                [disabled]="!u.id || !canManageUsers" title="Düzenle">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                    </path>
+                                </svg>
+                            </button>
+                            <button class="btn btn-ghost btn-sm text-error hover:bg-error/10"
+                                (click)="deleteUser(u.id!)" [disabled]="!u.id || !canManageUsers" title="Sil">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <ng-template #emptyState>
+        <div class="flex flex-col items-center justify-center py-16 px-4">
+            <div class="w-24 h-24 mb-4 rounded-full bg-base-300 flex items-center justify-center">
+                <svg class="w-12 h-12 text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
+                    </path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Kullanıcı Bulunamadı</h3>
+            <p class="text-sm text-base-content/60 text-center">Gösterilecek kullanıcı bulunmuyor.</p>
+        </div>
+    </ng-template>
+</div>
+
+<app-user-details-modal [(open)]="showUserDetailModal" [id]="selectedUserId"></app-user-details-modal>

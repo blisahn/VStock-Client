@@ -1,0 +1,258 @@
+/* Flash animasyonları için keyframes */
+@keyframes flashUp {
+    0% {
+        background-color: transparent;
+        transform: scale(1);
+    }
+
+    15% {
+        background-color: rgba(34, 197, 94, 0.25);
+        transform: scale(1.02);
+        box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+    }
+
+    30% {
+        background-color: rgba(34, 197, 94, 0.15);
+        transform: scale(1.01);
+        box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+    }
+
+    100% {
+        background-color: transparent;
+        transform: scale(1);
+        box-shadow: none;
+    }
+}
+
+@keyframes flashDown {
+    0% {
+        background-color: transparent;
+        transform: scale(1);
+    }
+
+    15% {
+        background-color: rgba(239, 68, 68, 0.25);
+        transform: scale(1.02);
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+    }
+
+    30% {
+        background-color: rgba(239, 68, 68, 0.15);
+        transform: scale(1.01);
+        box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+    }
+
+    100% {
+        background-color: transparent;
+        transform: scale(1);
+        box-shadow: none;
+    }
+}
+
+/* Pulse efekti için ek animasyon */
+@keyframes pulseGreen {
+    0% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    }
+}
+
+@keyframes pulseRed {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+/* Flash sınıfları */
+.flash-up {
+    animation: flashUp 600ms ease-out, pulseGreen 600ms ease-out;
+    position: relative;
+    z-index: 5;
+    border-radius: 4px;
+    transition: all 150ms ease;
+}
+
+.flash-down {
+    animation: flashDown 600ms ease-out, pulseRed 600ms ease-out;
+    position: relative;
+    z-index: 5;
+    border-radius: 4px;
+    transition: all 150ms ease;
+}
+
+/* Fiyat değişimi için ek görsel ipuçları */
+.flash-up::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -20px;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 80%;
+    background: linear-gradient(to bottom, transparent, #22c55e, transparent);
+    animation: slideInFade 400ms ease-out;
+}
+
+.flash-down::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -20px;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 80%;
+    background: linear-gradient(to bottom, transparent, #ef4444, transparent);
+    animation: slideInFade 400ms ease-out;
+}
+
+@keyframes slideInFade {
+    0% {
+        opacity: 0;
+        transform: translateY(-50%) translateX(-10px);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-50%) translateX(0);
+    }
+}
+
+/* Tablo satırları için hover efekti geliştirmesi */
+tbody tr {
+    transition: background-color 200ms ease;
+}
+
+tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Trend okları için animasyon */
+.text-success svg,
+.text-error svg {
+    animation: bounce 400ms ease-out;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+/* Fiyat font'u için optimizasyon */
+.font-mono {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+}
+
+/* Badge animasyonları */
+.badge {
+    transition: all 200ms ease;
+}
+
+.badge-success {
+    animation: badgeGlow 1s ease-out;
+}
+
+.badge-error {
+    animation: badgeGlowRed 1s ease-out;
+}
+
+@keyframes badgeGlow {
+    0% {
+        box-shadow: 0 0 5px rgba(34, 197, 94, 0.5);
+    }
+
+    100% {
+        box-shadow: none;
+    }
+}
+
+@keyframes badgeGlowRed {
+    0% {
+        box-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
+    }
+
+    100% {
+        box-shadow: none;
+    }
+}
+
+/* Performans optimizasyonu */
+.table {
+    will-change: auto;
+}
+
+.flash-up,
+.flash-down {
+    will-change: transform, background-color, box-shadow;
+}
+
+/* Alternatif: Daha güçlü flash efekti istiyorsanız */
+.flash-up.strong-flash {
+    animation-duration: 800ms;
+    animation-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.flash-down.strong-flash {
+    animation-duration: 800ms;
+    animation-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Satır highlight efekti */
+@keyframes rowHighlight {
+    0% {
+        background: linear-gradient(90deg, transparent 0%, rgba(34, 197, 94, 0.1) 50%, transparent 100%);
+        background-size: 200% 100%;
+        background-position: -100% 0;
+    }
+
+    100% {
+        background-position: 100% 0;
+    }
+}
+
+.flash-up td {
+    animation: rowHighlight 600ms ease-out;
+}
+
+@keyframes rowHighlightRed {
+    0% {
+        background: linear-gradient(90deg, transparent 0%, rgba(239, 68, 68, 0.1) 50%, transparent 100%);
+        background-size: 200% 100%;
+        background-position: -100% 0;
+    }
+
+    100% {
+        background-position: 100% 0;
+    }
+}
+
+.flash-down td {
+    animation: rowHighlightRed 600ms ease-out;
+}

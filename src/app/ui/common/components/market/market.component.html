@@ -1,0 +1,181 @@
+<div class="min-h-screen bg-base-200 p-4">
+    <!-- Ana Konteyner -->
+    <div class="max-w-7xl mx-auto">
+        <!-- Market Kartı -->
+        <div class="bg-base-100 rounded-lg shadow-md">
+            <!-- Başlık Alanı -->
+            <div class="bg-base-100 border-b border-base-300 px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold">Market</h1>
+                        <p class="text-sm text-base-content/60 mt-1">Canlı Kripto Fiyatları</p>
+                    </div>
+                    <div class="text-right" *ngIf="lastUpdated">
+                        <span class="text-xs text-base-content/50">Son güncelleme</span>
+                        <p class="text-sm font-medium">{{ lastUpdated }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tablo Alanı -->
+            <div class="overflow-x-auto">
+                <ng-container *ngIf="marketData?.length && marketData.length > 0; else emptyState">
+                    <table class="table table-zebra w-full">
+                        <!-- Tablo Başlıkları -->
+                        <thead class="sticky top-0 bg-base-100 z-10 border-b border-base-300">
+                            <tr>
+                                <th class="text-center font-semibold">Sembol</th>
+                                <th class="text-right font-semibold">Fiyat</th>
+                                <th class="text-center font-semibold">Güncelleme</th>
+                                <th class="text-center font-semibold">İşlem</th>
+                            </tr>
+                        </thead>
+
+                        <!-- Tablo Gövdesi -->
+                        <tbody>
+                            <tr *ngFor="let q of marketData; let i = index; trackBy: trackBySymbol"
+                                class="hover:bg-base-200 transition-colors group" [class.flash-up]="q._flash === 'up'"
+                                [class.flash-down]="q._flash === 'down'">
+
+                                <!-- Sembol Kolonu -->
+                                <td>
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-base-content/50 text-sm w-8">{{ i + 1 }}</span>
+                                        <div class="flex items-center gap-2">
+                                            <!-- Kripto İkonu -->
+                                            <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                                                [ngClass]="{
+                                                     'bg-success/20 text-success': q._trend === 'up',
+                                                     'bg-error/20 text-error': q._trend === 'down',
+                                                     'bg-base-300': q._trend === 'same'
+                                                 }">
+                                                <span class="text-xs font-bold">{{
+                                                    q.symbol.replace('USDT','').substring(0,3) }}</span>
+                                            </div>
+                                            <div>
+                                                <p class="font-semibold">{{ q.symbol.replace('USDT','') }}</p>
+                                                <p class="text-xs text-base-content/60">{{ q.symbol.replace('USDT','')
+                                                    }}/USDT</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Fiyat Kolonu -->
+                                <td class="text-right relative">
+                                    <div class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md transition-all"
+                                        [class.flash-up]="q._flash === 'up'" [class.flash-down]="q._flash === 'down'"
+                                        [ngClass]="{
+                                             'text-success font-bold': q._trend === 'up',
+                                             'text-error font-bold': q._trend === 'down',
+                                             'text-base-content': q._trend === 'same'
+                                         }">
+
+                                        <!-- Trend İkonu Sol -->
+                                        <span class="inline-block w-4 h-4" *ngIf="q._trend !== 'same'">
+                                            <svg *ngIf="q._trend === 'up'" class="w-4 h-4 fill-current animate-bounce"
+                                                viewBox="0 0 20 20">
+                                                <path d="M10 4l6 8H4z" />
+                                            </svg>
+                                            <svg *ngIf="q._trend === 'down'" class="w-4 h-4 fill-current animate-bounce"
+                                                viewBox="0 0 20 20">
+                                                <path d="M10 16l-6-8h12z" />
+                                            </svg>
+                                        </span>
+
+                                        <!-- Fiyat -->
+                                        <span class="font-mono text-lg tracking-tight">
+                                            {{ q.price | currency:'USD':'symbol':'1.2-4' }}
+                                        </span>
+
+                                        <!-- Önceki Fiyat (küçük) -->
+                                        <span class="text-xs text-base-content/40 ml-1" *ngIf="q._prevPrice">
+                                            <span *ngIf="q._trend === 'up'">↑</span>
+                                            <span *ngIf="q._trend === 'down'">↓</span>
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <!-- Güncelleme Zamanı -->
+                                <td class="text-center">
+
+                                    <span class="text-sm text-base-content/60">{{ q.retrievedAt}}</span>
+
+                                </td>
+
+                                <!-- İşlem Butonu -->
+                                <td class="text-center">
+                                    <button
+                                        class="btn btn-sm btn-ghost group-hover:btn-primary transition-all duration-200"
+                                        [routerLink]="['/market/details', q.symbol]">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                        </svg>
+                                        <span class="hidden sm:inline">Detaylar</span>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </ng-container>
+
+                <!-- Boş Durum -->
+                <ng-template #emptyState>
+                    <div class="flex flex-col items-center justify-center py-16 px-4">
+                        <div
+                            class="w-24 h-24 mb-4 rounded-full bg-base-300 flex items-center justify-center animate-pulse">
+                            <svg class="w-12 h-12 text-base-content/30" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">Veri Bekleniyor</h3>
+                        <p class="text-sm text-base-content/60 text-center max-w-md">
+                            Market verileri yükleniyor. Akış bağlanınca fiyatlar burada görünecek.
+                        </p>
+                        <div class="mt-4">
+                            <span class="loading loading-dots loading-md"></span>
+                        </div>
+                    </div>
+                </ng-template>
+            </div>
+
+            <!-- Alt Bilgi Çubuğu -->
+            <div class="bg-base-100 border-t border-base-300 px-6 py-3" *ngIf="marketData.length > 0">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-base-content/60">
+                        Toplam <span class="font-semibold text-base-content">{{ marketData.length }}</span> kripto para
+                    </span>
+
+                    <!-- Canlı Gösterge -->
+                    <div class="flex items-center gap-2">
+                        <span class="relative flex h-2 w-2">
+                            <span
+                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
+                        </span>
+                        <span class="text-xs text-base-content/60">Canlı Veri</span>
+                    </div>
+
+                    <div class="flex gap-4 text-xs">
+                        <span class="flex items-center gap-1">
+                            <span class="w-2 h-2 bg-success rounded-full animate-pulse"></span>
+                            Yükseliş
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <span class="w-2 h-2 bg-error rounded-full animate-pulse"></span>
+                            Düşüş
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <span class="w-2 h-2 bg-base-300 rounded-full"></span>
+                            Sabit
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

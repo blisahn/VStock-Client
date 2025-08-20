@@ -1,0 +1,54 @@
+<div class="w-full max-w-2xl">
+    <!-- Header -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-base-content mb-2">Profil Ayarları</h2>
+        <p class="text-base-content/60">Hesap bilgilerinizi güncelleyin</p>
+    </div>
+
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- Ad Soyad -->
+        <div class="form-control w-full">
+            <label class="input">
+                <span class="label ">Ad Soyad</span>
+                <input type="text" placeholder="Adınız ve soyadınız" formControlName="fullName" />
+            </label>
+
+
+            <!-- <label class="label pb-2">
+                <span class="label label-text text-base font-medium text-base-content">Ad Soyad</span>
+
+                <input class="input input-bordered w-full h-12 text-base" type="text" placeholder="Adınız ve soyadınız"
+                    formControlName="fullName" />
+            </label> -->
+        </div>
+
+        <!-- Kullanıcı Adı -->
+        <div class="form-control w-full">
+            <label class="input">
+                <span class="label">Kullanıcı Adı</span>
+                <input type="text" placeholder="kullaniciadi" formControlName="username" />
+            </label>
+        </div>
+
+        <!-- E-posta -->
+        <div class="form-control w-full">
+            <label class="input">
+                <span class="label"> E-posta</span>
+                <input type="email" placeholder="ornek@mail.com" formControlName="email" />
+            </label>
+
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-end gap-3 pt-6">
+            <button type="button" class="btn btn-ghost px-6" [disabled]="isSaving">
+                İptal
+            </button>
+            <button type="button" class="btn btn-primary px-6" (click)="ask()"
+                [disabled]="profileForm.invalid || profileForm.pristine || isSaving">
+                <span class="loading loading-spinner loading-sm mr-2" *ngIf="isSaving"></span>
+                {{ isSaving ? 'Kaydediliyor...' : 'Güncelle' }}
+            </button>
+        </div>
+    </form>
+</div>

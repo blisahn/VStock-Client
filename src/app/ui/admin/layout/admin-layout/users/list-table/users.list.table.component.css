@@ -1,0 +1,6 @@
+.btn>img {
+    width: 1em;
+    height: auto;
+    max-width: unset;
+    max-height: unset;
+}

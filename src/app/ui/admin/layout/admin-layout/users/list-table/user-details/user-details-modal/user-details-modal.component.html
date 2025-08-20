@@ -1,0 +1,21 @@
+<input class="modal-toggle" id="user-details-modal" type="checkbox" [checked]="open"
+    (change)="openChange.emit(($any($event.target)).checked)" />
+
+<div class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box max-w-3xl bg-base-100 relative">
+        <!-- Close Button -->
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-3 top-3 z-10" (click)="close()">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+
+        <!-- Modal Content -->
+        <div class="py-4">
+            <app-user-details *ngIf="open" [id]="id"></app-user-details>
+        </div>
+    </div>
+
+    <!-- Modal Backdrop -->
+    <label class="modal-backdrop" for="user-details-modal" (click)="close()"></label>
+</div>

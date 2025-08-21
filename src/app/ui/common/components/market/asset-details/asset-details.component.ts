@@ -11,10 +11,10 @@ import { RecentTrade } from '../../../../../contract/market/common/RecentTrade';
 type DepthRow = { price: number; quantity: number; total: number; cum: number; perc: number };
 
 @Component({
-    selector: 'app-asset-details',
-    imports: [CommonModule],
-    templateUrl: './asset-details.component.html',
-    styleUrl: './asset-details.component.css'
+  selector: 'app-asset-details',
+  imports: [CommonModule],
+  templateUrl: './asset-details.component.html',
+  styleUrl: './asset-details.component.css'
 })
 export class AssetDetailsComponent implements OnInit, OnDestroy {
   symbol: string | null = null;
@@ -29,6 +29,10 @@ export class AssetDetailsComponent implements OnInit, OnDestroy {
   asksView: DepthRow[] = [];
   bidsView: DepthRow[] = [];
   maxCumAsk = 0; maxCumBid = 0;
+
+  private lastTradeKey = '';
+  private tradeBuffer: RecentTrade[] = [];
+  private bufferTimeout?: any;
 
   // al/sat inputlarına veri basmak için
   selectedPrice?: number;
@@ -52,23 +56,46 @@ export class AssetDetailsComponent implements OnInit, OnDestroy {
       this.signalR.on('ReceiveBinanceTradeDataUpdateNotification')
         .subscribe(d => {
           if (!d) return;
+
+          const tradeKey = `${d.price}-${d.quantity}-${d.retrievedAt}`;
+          if (this.lastTradeKey === tradeKey) {
+            // Aynı trade tekrar gelirse atla
+            return;
+          }
+          this.lastTradeKey = tradeKey;
+
           this.cryptoQuote = d;
           const side: 'buy' | 'sell' = d.side === 0 || d.side === 'Buy' ? 'buy' : 'sell';
 
           const row: RecentTrade = {
             price: d.price,
             quantity: d.quantity,
-            time: new Date(d.retrievedAt).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul' }),
+            time: new Date(d.retrievedAt).toLocaleString('tr-TR', {
+              timeZone: 'Europe/Istanbul',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              fractionalSecondDigits: 2
+            }),
             side
           };
           // if (isNaN(row.time as any)) {
           //   return;
           // }
-          this.recentTrades?.unshift(row);
-          if (this.recentTrades && this.recentTrades.length > this.maxTrades) {
-            this.recentTrades = this.recentTrades.slice(0, this.maxTrades);
-          }
+          // this.recentTrades?.unshift(row);
+          // if (this.recentTrades && this.recentTrades.length > this.maxTrades) {
+          //   this.recentTrades = this.recentTrades.slice(0, this.maxTrades);
+          // }
+          this.tradeBuffer.push(row);
 
+          // Clear existing timeout
+          if (this.bufferTimeout) {
+            clearTimeout(this.bufferTimeout);
+          }
+          // Process buffer after 50ms of no new trades
+          this.bufferTimeout = setTimeout(() => {
+            this.processTradeBatch();
+          }, 50);
         })
     );
 
@@ -87,7 +114,12 @@ export class AssetDetailsComponent implements OnInit, OnDestroy {
     );
   }
 
+
   ngOnDestroy() {
+    if (this.bufferTimeout) {
+      clearTimeout(this.bufferTimeout);
+    }
+
     this.subs.forEach(s => s.unsubscribe());
     if (this.symbol) {
       this.signalR.leave(this.signalR.trade(this.symbol));
@@ -96,6 +128,16 @@ export class AssetDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
+  private processTradeBatch() {
+    if (this.tradeBuffer.length === 0) return;
+
+    this.recentTrades!.unshift(...this.tradeBuffer);
+
+    if (this.recentTrades!.length > this.maxTrades) {
+      this.recentTrades = this.recentTrades!.slice(0, this.maxTrades);
+    }
+    this.tradeBuffer = [];
+  }
   private buildDepthViews(d: OrderQuote) {
     // asks (sell) küçükten büyüğe, bids (buy) büyükten küçüğe
     const asks = [...(d.asks || [])].sort((a, b) => a.price - b.price).slice(0, 15);

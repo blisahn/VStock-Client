@@ -8,10 +8,10 @@ import { PagedResult } from '../../../../contract/helpers/PagedResult';
 import { GetTransactionDetailResponse } from '../../../../contract/transaction/GetTransactionDetailResponse';
 
 @Component({
-    selector: 'app-wallet',
-    imports: [CommonModule, FormsModule],
-    templateUrl: './wallet.component.html',
-    styleUrl: './wallet.component.css'
+  selector: 'app-wallet',
+  imports: [CommonModule, FormsModule],
+  templateUrl: './wallet.component.html',
+  styleUrl: './wallet.component.css'
 })
 export class WalletComponent implements OnInit {
 
@@ -37,7 +37,7 @@ export class WalletComponent implements OnInit {
       return;
     }
     let cashDeposit: TransactionDto = {
-      symbol: 'TRY',
+      symbol: 'USDT',
       transactionType: 'Deposit',
       quantity: 1,
       price: amount

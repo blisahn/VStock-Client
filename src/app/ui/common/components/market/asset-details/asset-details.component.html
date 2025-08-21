@@ -19,10 +19,10 @@
                     <span class="text-base-content/60">Spread:</span>
                     <span class="ml-2 font-medium">{{ spread | currency:'USD':'symbol':'1.2-4' }}</span>
                 </div>
-                <div>
+                <!-- <div>
                     <span class="text-base-content/60">Mid Fiyat:</span>
                     <span class="ml-2 font-medium">{{ mid | currency:'USD':'symbol':'1.2-2' }}</span>
-                </div>
+                </div> -->
                 <div *ngIf="graphQuote">
                     <span class="text-base-content/60">Hacim:</span>
                     <span class="ml-2 font-medium">{{ graphQuote.volume | number:'1.0-2' }}</span>
@@ -92,7 +92,7 @@
 
         <!-- Sağ Taraf - Emir Defteri ve Al/Sat -->
         <div class="w-80 flex flex-col gap-4">
-            <!-- Emir Defteri -->
+            <!-- Order Book Section -->
             <div class="bg-base-100 rounded-lg shadow-md p-4">
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-lg font-semibold">EMİR DEFTERİ</h2>
@@ -101,14 +101,14 @@
                 </div>
 
                 <div class="space-y-2">
-                    <!-- Başlık -->
+                    <!-- Header -->
                     <div class="grid grid-cols-3 text-xs text-base-content/60 px-2 pb-1 border-b border-base-300">
-                        <span>Fiyat</span>
+                        <span>Fiyat (USDT)</span>
                         <span class="text-right">Miktar</span>
-                        <span class="text-right">Toplam</span>
+                        <span class="text-right">Toplam (USDT)</span>
                     </div>
 
-                    <!-- Satış Emirleri -->
+                    <!-- Sell Orders (Asks) -->
                     <div class="order-book-container" style="max-height: 200px; overflow-y: auto;">
                         <div *ngFor="let r of asksView.slice().reverse(); trackBy: trackByPrice"
                             class="grid grid-cols-3 text-sm py-1 px-2 hover:bg-base-200 cursor-pointer transition-colors"
@@ -116,11 +116,11 @@
                             [style.background]="'linear-gradient(to left, rgba(239, 68, 68, 0.15) ' + r.perc + '%, transparent ' + r.perc + '%)'">
                             <span class="text-error font-medium">{{ r.price | number:'1.2-2' }}</span>
                             <span class="text-right">{{ r.quantity | number:'1.4-4' }}</span>
-                            <span class="text-right text-base-content/70">{{ r.cum | number:'1.2-2' }}</span>
+                            <span class="text-right text-base-content/70">{{ r.total | number:'1.2-2' }}</span>
                         </div>
                     </div>
 
-                    <!-- Mevcut Fiyat -->
+                    <!-- Current Price -->
                     <div class="py-3 px-2 bg-base-200 rounded-lg text-center">
                         <span class="text-2xl font-bold" [ngClass]="{
                             'text-success': cryptoQuote?.isUpdated && (cryptoQuote?.price ?? 0) > (mid ?? 0),
@@ -130,7 +130,7 @@
                         </span>
                     </div>
 
-                    <!-- Alış Emirleri -->
+                    <!-- Buy Orders (Bids) -->
                     <div class="order-book-container" style="max-height: 200px; overflow-y: auto;">
                         <div *ngFor="let r of bidsView; trackBy: trackByPrice"
                             class="grid grid-cols-3 text-sm py-1 px-2 hover:bg-base-200 cursor-pointer transition-colors"
@@ -138,7 +138,7 @@
                             [style.background]="'linear-gradient(to right, rgba(34, 197, 94, 0.15) ' + r.perc + '%, transparent ' + r.perc + '%)'">
                             <span class="text-success font-medium">{{ r.price | number:'1.2-2' }}</span>
                             <span class="text-right">{{ r.quantity | number:'1.4-4' }}</span>
-                            <span class="text-right text-base-content/70">{{ r.cum | number:'1.2-2' }}</span>
+                            <span class="text-right text-base-content/70">{{ r.total | number:'1.2-2' }}</span>
                         </div>
                     </div>
                 </div>

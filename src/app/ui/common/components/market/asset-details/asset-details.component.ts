@@ -1,40 +1,42 @@
-import { Component, OnDestroy, OnInit, Signal } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { SignalRService } from '../../../../../services/signalR/signal-r.service';
 import { CryptoQuote } from '../../../../../contract/market/common/CryptoQuote';
-import { GraphQuote } from '../../../../../contract/market/common/GraphQuote';
 import { OrderQuote } from '../../../../../contract/market/common/OrderQuote';
 import { RecentTrade } from '../../../../../contract/market/common/RecentTrade';
+import { GraphQuote } from '../../../../../contract/market/common/GraphQuote';
+import { GraphComponent } from "../graph/graph/graph.component";
 
 type DepthRow = { price: number; quantity: number; total: number; cum: number; perc: number };
 
 @Component({
   selector: 'app-asset-details',
-  imports: [CommonModule],
+  imports: [CommonModule, GraphComponent],
   templateUrl: './asset-details.component.html',
-  styleUrl: './asset-details.component.css'
+  styleUrl: './asset-details.component.css',
+  standalone: true,
 })
 export class AssetDetailsComponent implements OnInit, OnDestroy {
   symbol: string | null = null;
   interval = '1m';
 
   cryptoQuote?: CryptoQuote;
-  graphQuote?: GraphQuote;
   orderQuote?: OrderQuote;
+  graphQuote?: GraphQuote; // Add this for passing to child
   recentTrades?: RecentTrade[] = [];
   private maxTrades = 20;
-  // Görünüm için işlenmiş order book
+
   asksView: DepthRow[] = [];
   bidsView: DepthRow[] = [];
-  maxCumAsk = 0; maxCumBid = 0;
+  maxCumAsk = 0;
+  maxCumBid = 0;
 
   private lastTradeKey = '';
   private tradeBuffer: RecentTrade[] = [];
   private bufferTimeout?: any;
 
-  // al/sat inputlarına veri basmak için
   selectedPrice?: number;
   selectedQty?: number;
 
@@ -52,6 +54,7 @@ export class AssetDetailsComponent implements OnInit, OnDestroy {
     await this.signalR.join(this.signalR.depth(this.symbol));
     await this.signalR.join(this.signalR.kline(this.symbol, this.interval));
 
+    // Subscribe to trade data
     this.subs.push(
       this.signalR.on('ReceiveBinanceTradeDataUpdateNotification')
         .subscribe(d => {
@@ -59,7 +62,6 @@ export class AssetDetailsComponent implements OnInit, OnDestroy {
 
           const tradeKey = `${d.price}-${d.quantity}-${d.retrievedAt}`;
           if (this.lastTradeKey === tradeKey) {
-            // Aynı trade tekrar gelirse atla
             return;
           }
           this.lastTradeKey = tradeKey;
@@ -79,26 +81,19 @@ export class AssetDetailsComponent implements OnInit, OnDestroy {
             }),
             side
           };
-          // if (isNaN(row.time as any)) {
-          //   return;
-          // }
-          // this.recentTrades?.unshift(row);
-          // if (this.recentTrades && this.recentTrades.length > this.maxTrades) {
-          //   this.recentTrades = this.recentTrades.slice(0, this.maxTrades);
-          // }
+
           this.tradeBuffer.push(row);
 
-          // Clear existing timeout
           if (this.bufferTimeout) {
             clearTimeout(this.bufferTimeout);
           }
-          // Process buffer after 50ms of no new trades
           this.bufferTimeout = setTimeout(() => {
             this.processTradeBatch();
           }, 50);
         })
     );
 
+    // Subscribe to depth data
     this.subs.push(
       this.signalR.on<OrderQuote>('ReceiveBinanceDepthDataUpdateNotification')
         .subscribe(d => {
@@ -108,12 +103,15 @@ export class AssetDetailsComponent implements OnInit, OnDestroy {
         })
     );
 
+    // Subscribe to kline data HERE in parent component
     this.subs.push(
       this.signalR.on<GraphQuote>('ReceiveBinanceKlineDataUpdateNotification')
-        .subscribe(d => { if (!d) return; this.graphQuote = d; })
+        .subscribe(d => {
+          if (!d) return;
+          this.graphQuote = d; // Store and pass to child
+        })
     );
   }
-
 
   ngOnDestroy() {
     if (this.bufferTimeout) {
@@ -138,12 +136,11 @@ export class AssetDetailsComponent implements OnInit, OnDestroy {
     }
     this.tradeBuffer = [];
   }
+
   private buildDepthViews(d: OrderQuote) {
-    // asks (sell) küçükten büyüğe, bids (buy) büyükten küçüğe
     const asks = [...(d.asks || [])].sort((a, b) => a.price - b.price).slice(0, 15);
     const bids = [...(d.bids || [])].sort((a, b) => b.price - a.price).slice(0, 15);
 
-    // kümülatif
     let cum = 0;
     const asksView: DepthRow[] = asks.map(x => {
       const total = x.price * x.quantity;
@@ -178,11 +175,10 @@ export class AssetDetailsComponent implements OnInit, OnDestroy {
   }
 
   trackByPrice = (_: number, r: DepthRow) => r.price;
-  trackTrade = (_: number, t: RecentTrade) => `${new Date(t.time).getTime()}-${t.price}-${t.quantity}`;
+  trackTrade = (_: number, t: RecentTrade) => `${t.time}-${t.price}-${t.quantity}`;
 
   pick(price: number, qty: number) {
     this.selectedPrice = price;
     this.selectedQty = qty;
-    // burada form kontrolüne set edebilirsin; ör: this.buyForm.patchValue({ price, qty })
   }
 }

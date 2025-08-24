@@ -1,13 +1,14 @@
-import { Injectable } from '@angular/core';
+import { inject, Inject, Injectable } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { CustomToastrService, ToastrPosition, ToastrType } from '../common/custom.toastr.service';
 
 type Group = string;
 
 @Injectable({ providedIn: 'root' })
 export class SignalRService {
   private hub?: signalR.HubConnection;
-
+  private toastrService = inject(CustomToastrService);
   // Event adı -> Subject eşlemesi (çoklu akış)
   private subjects = new Map<string, Subject<any>>();
 
@@ -22,16 +23,14 @@ export class SignalRService {
 
   constructor() { }
 
-  /** Bağlantıyı başlat; tekrar çağrılırsa mevcut bağlantıyı korur */
   async startConnection(hubUrl?: string): Promise<void> {
     if (hubUrl) this.hubUrl = hubUrl;
 
     if (this.hub && (this.hub.state === signalR.HubConnectionState.Connected
       || this.hub.state === signalR.HubConnectionState.Connecting)) {
-      return; // zaten açık/bağlanıyor
+      return;
     }
 
-    // Mevcut bağlantıyı kapat (varsa)
     if (this.hub) {
       try {
         await this.hub.stop();
@@ -46,33 +45,31 @@ export class SignalRService {
       .configureLogging(signalR.LogLevel.Information)
       .build();
 
-    // Reconnect eventleri
     this.hub.onreconnecting(() => {
-      // İstersen UI’da “yeniden bağlanıyor” gösterebilirsin
+      this.toastrService.showToastr("Tekrardan baglaniliyor", "Bilgilendirme", {
+        position: ToastrPosition.TopRight,
+        type: ToastrType.Info
+      });
     });
 
     this.hub.onreconnected(async () => {
-      // Gruplara yeniden katıl
       for (const g of this.joinedGroups) {
         await this.safeInvokeJoin(g);
       }
     });
 
     this.hub.onclose(() => {
-      // İsteğe bağlı: kapandı uyarısı
+      console.log("Baglanti kapatiliyor");
     });
-
     await this.hub.start();
   }
 
-  /** Bir SignalR event’i için Observable döndürür ve gerekirse handler’ı bağlar */
   on<T = any>(methodName: string): Observable<T> {
     if (!this.subjects.has(methodName)) {
       this.subjects.set(methodName, new BehaviorSubject<T | null>(null) as Subject<T>);
     }
     const subj = this.subjects.get(methodName)!;
 
-    // Handler'ı yalnızca bir defa bağla
     if (!this.boundEvents.has(methodName)) {
       this.boundEvents.add(methodName);
       if (!this.hub) {
@@ -87,15 +84,7 @@ export class SignalRService {
     return subj.asObservable();
   }
 
-  /** Event handler’ını kaldır (isteğe bağlı temizlik) */
-  off(methodName: string) {
-    if (!this.hub) return;
-    this.hub.off(methodName);
-    this.boundEvents.delete(methodName);
-    this.subjects.delete(methodName);
-  }
 
-  /** Grup yönetimi */
   async join(group: Group) {
     await this.safeInvokeJoin(group);
     this.joinedGroups.add(group);
@@ -107,7 +96,6 @@ export class SignalRService {
     this.joinedGroups.delete(group);
   }
 
-  /** Tüm bağlantıyı durdur */
   async stopConnection(): Promise<void> {
     if (!this.hub) return;
     try {
@@ -119,11 +107,10 @@ export class SignalRService {
     }
   }
 
-  // ---- Yardımcılar: Sözleşmeli grup adları ----
-  marketAllTrades(): Group { return 'market:trade:ALL'; }
-  trade(symbol: string): Group { return `binance:trade:${symbol}`; }
-  depth(symbol: string): Group { return `binance:depth:${symbol}`; }
-  kline(symbol: string, interval: string): Group { return `binance:kline:${symbol}:${interval}`; }
+  marketAllTrades(): Group { return 'market_trades' }
+  trade(symbol: string): Group { return `trade_${symbol.toUpperCase()}`; }
+  depth(symbol: string): Group { return `depth_${symbol.toUpperCase()}`; }
+  kline(symbol: string, interval: string): Group { return `kline_${symbol.toUpperCase()}_${interval.toLowerCase()}`; }
 
   // ---- Private helpers ----
   private async safeInvokeJoin(group: Group) {

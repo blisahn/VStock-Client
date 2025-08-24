@@ -8,6 +8,7 @@ import { OrderQuote } from '../../../../../contract/market/common/OrderQuote';
 import { RecentTrade } from '../../../../../contract/market/common/RecentTrade';
 import { GraphQuote } from '../../../../../contract/market/common/GraphQuote';
 import { GraphComponent } from "../graph/graph/graph.component";
+import { inflateRaw } from 'zlib';
 
 type DepthRow = { price: number; quantity: number; total: number; cum: number; perc: number };
 
@@ -19,12 +20,10 @@ type DepthRow = { price: number; quantity: number; total: number; cum: number; p
   standalone: true,
 })
 export class AssetDetailsComponent implements OnInit, OnDestroy {
-  symbol: string | null = null;
-  interval = '1m';
 
+  symbol: string | null = null;
   cryptoQuote?: CryptoQuote;
   orderQuote?: OrderQuote;
-  graphQuote?: GraphQuote; // Add this for passing to child
   recentTrades?: RecentTrade[] = [];
   private maxTrades = 20;
 
@@ -52,9 +51,7 @@ export class AssetDetailsComponent implements OnInit, OnDestroy {
 
     await this.signalR.join(this.signalR.trade(this.symbol));
     await this.signalR.join(this.signalR.depth(this.symbol));
-    await this.signalR.join(this.signalR.kline(this.symbol, this.interval));
 
-    // Subscribe to trade data
     this.subs.push(
       this.signalR.on('ReceiveBinanceTradeDataUpdateNotification')
         .subscribe(d => {
@@ -103,14 +100,6 @@ export class AssetDetailsComponent implements OnInit, OnDestroy {
         })
     );
 
-    // Subscribe to kline data HERE in parent component
-    this.subs.push(
-      this.signalR.on<GraphQuote>('ReceiveBinanceKlineDataUpdateNotification')
-        .subscribe(d => {
-          if (!d) return;
-          this.graphQuote = d; // Store and pass to child
-        })
-    );
   }
 
   ngOnDestroy() {
@@ -122,7 +111,6 @@ export class AssetDetailsComponent implements OnInit, OnDestroy {
     if (this.symbol) {
       this.signalR.leave(this.signalR.trade(this.symbol));
       this.signalR.leave(this.signalR.depth(this.symbol));
-      this.signalR.leave(this.signalR.kline(this.symbol, this.interval));
     }
   }
 

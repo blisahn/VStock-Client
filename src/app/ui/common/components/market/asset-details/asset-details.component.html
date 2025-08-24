@@ -19,14 +19,7 @@
                     <span class="text-base-content/60">Spread:</span>
                     <span class="ml-2 font-medium">{{ spread | currency:'USD':'symbol':'1.2-4' }}</span>
                 </div>
-                <!-- <div>
-                    <span class="text-base-content/60">Mid Fiyat:</span>
-                    <span class="ml-2 font-medium">{{ mid | currency:'USD':'symbol':'1.2-2' }}</span>
-                </div> -->
-                <!-- <div *ngIf="graphQuote">
-                    <span class="text-base-content/60">Hacim:</span>
-                    <span class="ml-2 font-medium">{{ graphQuote.volume | number:'1.0-2' }}</span>
-                </div> -->
+
             </div>
         </div>
     </div>
@@ -37,32 +30,12 @@
         <div class="flex-1 flex flex-col gap-4">
             <!-- Grafik Kartı -->
             <div class="bg-base-100 rounded-lg shadow-md p-4">
-                <div class="mb-4">
-                    <div class="btn-group">
-                        <button class="btn btn-sm" [class.btn-active]="interval === '1s'"
-                            (click)="interval ='1s'">15dk</button>
-                        <button class="btn btn-sm" [class.btn-active]="interval === '1m'"
-                            (click)="interval = '1m'">15dk</button>
-                        <button class="btn btn-sm" [class.btn-active]="interval === '15m'"
-                            (click)="interval = '15m'">15dk</button>
-                        <button class="btn btn-sm" [class.btn-active]="interval === '1h'"
-                            (click)="interval = '1h'">1S</button>
-                        <button class="btn btn-sm" [class.btn-active]="interval === '4h'"
-                            (click)="interval = '4h'">4S</button>
-                        <button class="btn btn-sm" [class.btn-active]="interval === '1d'"
-                            (click)="interval = '1d'">1G</button>
-                        <button class="btn btn-sm" [class.btn-active]="interval === '1w'"
-                            (click)="interval = '1w'">1H</button>
-                    </div>
-                </div>`
 
-                <!-- <div class="h-96 bg-base-200 rounded-lg flex items-center justify-center"> -->
+
                 <div class="h-96 rounded-lg">
-                    <app-graph [data]="graphQuote" [interval]="interval" [symbol]="symbol"
-                        class="w-full h-full"></app-graph>
+                    <app-graph [symbol]="symbol" class="w-full h-full"></app-graph>
                 </div>
 
-                <!-- </div> -->
             </div>
 
             <!-- Piyasa Alım Satımları -->

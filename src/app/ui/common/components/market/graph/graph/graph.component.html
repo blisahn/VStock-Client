@@ -1,2 +1,9 @@
-<!-- Template ref + gerçek boyut -->
+<div class="mb-4">
+    <div class="btn-group">
+        <button class="btn btn-sm" [class.btn-active]="interval === '1m'" (click)="setInterval('1m')">1dk</button>
+        <button class="btn btn-sm" [class.btn-active]="interval === '15m'" (click)="setInterval('15m')">15dk</button>
+        <button class="btn btn-sm" [class.btn-active]="interval === '1h'" (click)="setInterval('1h')">1S</button>
+
+    </div>
+</div>
 <div #assetChart class="w-full h-full"></div>

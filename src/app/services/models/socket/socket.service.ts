@@ -11,7 +11,7 @@ export class SocketService {
     constructor(private customHttpClient: CustomHttpClient,
     ) { }
 
-    async getHistoricalKlines(symbol: string,
+    async getHistoricalCrpytoKlines(symbol: string,
         interval: string,
         startTime: number,
         endTime: number,
@@ -31,7 +31,7 @@ export class SocketService {
         try {
             const request$ = this.customHttpClient.get<BaseApiResponse<GraphQuote[][]>>({
                 controller: "socket",
-                action: "getcryptodata",
+                action: "getcryptoklinedata",
                 queryString: queryString
             });
             const res = await firstValueFrom(request$);

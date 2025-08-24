@@ -15,10 +15,10 @@ interface RowQuote extends CryptoQuote {
 }
 
 @Component({
-    selector: 'app-market',
-    imports: [CommonModule, FormsModule, RouterLink],
-    templateUrl: './market.component.html',
-    styleUrl: './market.component.css'
+  selector: 'app-market',
+  imports: [CommonModule, FormsModule, RouterLink],
+  templateUrl: './market.component.html',
+  styleUrl: './market.component.css'
 })
 export class MarketComponent implements OnInit, OnDestroy {
   marketData: RowQuote[] = [];
@@ -31,17 +31,14 @@ export class MarketComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     await this.signalR.startConnection('http://localhost:5217/crypto-hub');
 
-    // 1) Tüm semboller için hafif akış grubuna katıl
     await this.signalR.join(this.signalR.marketAllTrades());
 
-    // 2) Yalnızca market listesine özel event’i dinle
     const sub = this.signalR
       .on<CryptoQuote>('ReceiveBinanceMarketData')
       .subscribe((incoming) => {
         if (!incoming) return;
         this.processIncomingData(incoming);
       });
-
     this.subs.push(sub);
   }
 
@@ -50,7 +47,6 @@ export class MarketComponent implements OnInit, OnDestroy {
     this.signalR.leave(this.signalR.marketAllTrades());
   }
 
-  // Senin mevcut logic’in birebir
   processIncomingData(incoming: CryptoQuote | any) {
     const retrieved = typeof incoming.retrievedAt === 'number'
       ? new Date(incoming.retrievedAt).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul' })

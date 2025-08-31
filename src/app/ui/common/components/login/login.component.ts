@@ -9,15 +9,15 @@ import { CustomToastrService, ToastrPosition, ToastrType } from '../../../../ser
 
 
 @Component({
-    selector: 'app-login',
-    imports: [
-        ModalComponent,
-        ReactiveFormsModule,
-        CommonModule,
-        FormsModule
-    ],
-    templateUrl: './login.component.html',
-    styleUrl: './login.component.css'
+  selector: 'app-login',
+  imports: [
+    ModalComponent,
+    ReactiveFormsModule,
+    CommonModule,
+    FormsModule
+  ],
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.css'
 })
 export class LoginComponent {
   loginUserDto: LoginUserDto = { usernameOrEmail: '', password: '' };
@@ -30,7 +30,7 @@ export class LoginComponent {
 
   async login() {
     const loginResponse = await this.userAuthService.login(this.loginUserDto);
-    if (loginResponse.succeeded!) {
+    if (loginResponse.succeeded) {
       const returnUrl = this.getSafeReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl'));
       if (returnUrl != null) {
         this.router.navigateByUrl(returnUrl, { replaceUrl: true });
@@ -40,7 +40,6 @@ export class LoginComponent {
         type: ToastrType.Succes
       });
     }
-    console.log("Giris basarisiz");
   }
 
   getSafeReturnUrl(url: string | null): string {

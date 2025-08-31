@@ -1,4 +1,4 @@
-import { HttpInterceptorFn, HttpStatusCode } from '@angular/common/http';
+import { HttpHandlerFn, HttpInterceptorFn, HttpStatusCode, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthService } from '../models/auth.service';
 import { UserAuthService } from '../models/user/user-auth.service';
@@ -16,17 +16,12 @@ export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
     const token = auth.accessToken;
     const isAuthCall = isAuthEndpoint(req.url);
 
-    if (!isAuthCall) {
-        const accessExpired = !auth.isAuthenticated();
-        const refreshOk = !auth.isRefreshExpired();
-
-        if (accessExpired && refreshOk) {
-            return performRefreshAndRetry(req, next, userAuth, auth);
-        }
+    if (!isAuthCall && !auth.isAuthenticated() && !auth.isRefreshExpired()) {
+        return performRefreshAndRetry(req, next, userAuth, auth);
     }
 
 
-    const authReq = !isAuthCall && token
+    const authReq = (!isAuthCall && token)
         ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
         : req;
 
@@ -45,6 +40,7 @@ export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
             }
 
             if (is403) {
+                userAuth.signOut();
                 return throwError(() => err);
             }
             return throwError(() => err);
@@ -56,8 +52,9 @@ export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
 function refreshToken(userAuth: UserAuthService, auth: AuthService): Observable<string> {
     return new Observable<string>((observer) => {
         userAuth.refreshTokenLogin().then(ok => {
+            const newToken = auth.accessToken;
             if (ok && auth.accessToken) {
-                observer.next(auth.accessToken);
+                observer.next(newToken!);
                 observer.complete();
             } else observer.error('refresh_failed');
         }).catch(() => observer.error('refresh_failed'));
@@ -65,14 +62,20 @@ function refreshToken(userAuth: UserAuthService, auth: AuthService): Observable<
 }
 
 function isAuthEndpoint(url: string): boolean {
-    const u = url.toLowerCase();
-    return u.includes('/auth/login') || u.includes('/auth/refreshtokenlogin');
+    try {
+        const u = new URL(url, location.origin);
+        return u.pathname.startsWith('/api/auth/')
+    } catch {
+        const lower = url.toLowerCase();
+        return lower.includes('/auth/login') || lower.includes('/auth/refreshtokenlogin');
+    }
 }
-function performRefreshAndRetry(req: any, next: any, userAuth: UserAuthService, auth: AuthService): Observable<any> {
+
+function performRefreshAndRetry(req: HttpRequest<any>, next: HttpHandlerFn,
+    userAuth: UserAuthService, auth: AuthService): Observable<any> {
     if (!refreshInProgress) {
         refreshInProgress = true;
-        refreshSubject = new Subject<string | null>(); // YENİ subject
-
+        refreshSubject = new Subject<string | null>();
         return refreshToken(userAuth, auth).pipe(
             switchMap((newToken) => {
                 refreshInProgress = false;
@@ -85,17 +88,18 @@ function performRefreshAndRetry(req: any, next: any, userAuth: UserAuthService, 
             catchError((e) => {
                 refreshInProgress = false;
                 refreshSubject.error(e);
-                // Kullanıcıyı çıkart
-                // userAuth.signOut();
+                refreshSubject.complete();   // tamamla ki bekleyenler takılmasın
+                userAuth.signOut();
                 return throwError(() => e);
             })
         );
     } else {
-        // Devam eden refresh'i bekle
         return refreshSubject.pipe(
             take(1),
             switchMap((newToken) => {
-                const retryReq = req.clone({ setHeaders: { Authorization: `Bearer ${newToken}` } });
+                const retryReq = newToken
+                    ? req.clone({ setHeaders: { Authorization: `Bearer ${newToken}` } })
+                    : req; // yine de gönder, error handler yakalar
                 return next(retryReq);
             })
         );

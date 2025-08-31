@@ -1,4 +1,4 @@
-import { PagedResult } from "../../helpers/PagedResult";
+import { PagedResult } from "../../../helpers/PagedResult";
 import { UserListItemContract } from "./UserListItemContract";
 
 

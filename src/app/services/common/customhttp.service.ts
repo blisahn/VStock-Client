@@ -67,7 +67,6 @@ export class CustomHttpClient {
       url = requestParameter.fullEndpoint;
     else
       url = `${this.url(requestParameter)}${requestParameter.queryString ? `?${requestParameter.queryString}` : ''}`;
-    console.log('URL BU :', url);
 
     return this.httpClient.put<ResponseType>(url, body, {
       headers: requestParameter.headers,

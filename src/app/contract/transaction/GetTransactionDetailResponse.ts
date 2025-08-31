@@ -4,5 +4,5 @@ export class GetTransactionDetailResponse {
     quantity!: number;
     price!: number;
     executedAt!: Date;
-
+    currentAssetPrice?: number;
 }

@@ -2,6 +2,7 @@ import { inject, Inject, Injectable } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { CustomToastrService, ToastrPosition, ToastrType } from '../common/custom.toastr.service';
+import { AuthService } from '../models/auth.service';
 
 type Group = string;
 
@@ -9,17 +10,12 @@ type Group = string;
 export class SignalRService {
   private hub?: signalR.HubConnection;
   private toastrService = inject(CustomToastrService);
-  // Event adı -> Subject eşlemesi (çoklu akış)
   private subjects = new Map<string, Subject<any>>();
-
-  // Katıldığımız gruplar (reconnect sonrası tekrar join için)
   private joinedGroups = new Set<Group>();
-
-  // Tek seferlik handler bağlama koruması
+  private authService = inject(AuthService);
   private boundEvents = new Set<string>();
 
-  // Varsayılan hub URL (server’daki MapHub ile birebir olmalı)
-  public hubUrl = 'http://localhost:5217/crypto-hub';
+  public hubUrl: string | null = null;
 
   constructor() { }
 
@@ -37,13 +33,22 @@ export class SignalRService {
       } catch { }
     }
 
-    this.hub = new signalR.HubConnectionBuilder()
-      .withUrl(this.hubUrl, {
-        accessTokenFactory: () => sessionStorage.getItem('accessToken') || ''
-      })
-      .withAutomaticReconnect()
-      .configureLogging(signalR.LogLevel.Information)
-      .build();
+    if (this.authService.isAuthenticated()) {
+      this.hub = new signalR.HubConnectionBuilder()
+        .withUrl(this.hubUrl!, {
+          accessTokenFactory: () => sessionStorage.getItem('accessToken') || ''
+        })
+        .withAutomaticReconnect()
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+    } else {
+      this.hub = new signalR.HubConnectionBuilder()
+        .withUrl(this.hubUrl!)
+        .withAutomaticReconnect()
+        .configureLogging(signalR.LogLevel.Information)
+        .build()
+    }
+
 
     this.hub.onreconnecting(() => {
       this.toastrService.showToastr("Tekrardan baglaniliyor", "Bilgilendirme", {
@@ -112,7 +117,6 @@ export class SignalRService {
   depth(symbol: string): Group { return `depth_${symbol.toUpperCase()}`; }
   kline(symbol: string, interval: string): Group { return `kline_${symbol.toUpperCase()}_${interval.toLowerCase()}`; }
 
-  // ---- Private helpers ----
   private async safeInvokeJoin(group: Group) {
     if (!this.hub) throw new Error('Hub bağlantısı yok. startConnection() çağır.');
     await this.hub.invoke('Join', group);

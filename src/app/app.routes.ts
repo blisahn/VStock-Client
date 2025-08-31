@@ -35,7 +35,8 @@ export const routes: Routes = [
             { path: '', redirectTo: 'admin-settings', pathMatch: 'full' },
             { path: 'admin-settings', loadComponent: () => import('./ui/admin/layout/admin-layout/settings/settings.component').then(m => m.SettingsComponent), data: { permissions: ['Settings.Manage', 'Settings.View'] } }, // <-- canActivate'ı burada tekrarlamaya gerek yok.
             { path: 'admin-users', loadComponent: () => import('./ui/admin/layout/admin-layout/users/list-table/users.list.table.component').then(m => m.UsersTableComponent), data: { permissions: ['Users.View'] } }, // <-- canActivate'ı burada tekrarlamaya gerek yok.
-            { path: 'user-details', loadComponent: () => import('./ui/admin/layout/admin-layout/users/list-table/user-details/user-details.component').then(m => m.UserDetailsComponent), data: { permissions: ['Users.Manage'] } }, // <-- canActivate'ı burada tekrarlamaya gerek yok.
+            { path: 'user-details', loadComponent: () => import('./ui/admin/layout/admin-layout/users/list-table/user-details/user-details.component').then(m => m.UserDetailsComponent), data: { permissions: ['Users.Manage'] } },
+            { path: 'create-asset', loadComponent: () => import('./ui/admin/layout/admin-layout/settings/create-asset-modal/create-asset-modal.component').then(m => m.CreateAssetModalComponent), data: { permissions: ['Settings.Manage'] } } // <-- canActivate'ı burada tekrarlamaya gerek yok.
         ]
     }
 ];

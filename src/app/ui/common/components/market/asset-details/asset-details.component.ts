@@ -3,28 +3,32 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { SignalRService } from '../../../../../services/signalR/signal-r.service';
-import { CryptoQuote } from '../../../../../contract/market/common/CryptoQuote';
-import { OrderQuote } from '../../../../../contract/market/common/OrderQuote';
-import { RecentTrade } from '../../../../../contract/market/common/RecentTrade';
-import { GraphQuote } from '../../../../../contract/market/common/GraphQuote';
+import { CryptoQuote } from '../../../../../contract/market/common/crypto/CryptoQuote';
+import { OrderQuote } from '../../../../../contract/market/common/crypto/OrderQuote';
+import { RecentTrade } from '../../../../../contract/market/common/crypto/RecentTrade';
 import { GraphComponent } from "../graph/graph/graph.component";
-import { inflateRaw } from 'zlib';
+import { FormsModule } from '@angular/forms';
+import { AssetService } from '../../../../../services/models/asset/asset.service';
+import { CustomToastrService, ToastrPosition, ToastrType } from '../../../../../services/common/custom.toastr.service';
+import { AssetDto } from '../../../../../contract/market/actions/AssetDto';
 
 type DepthRow = { price: number; quantity: number; total: number; cum: number; perc: number };
 
 @Component({
   selector: 'app-asset-details',
-  imports: [CommonModule, GraphComponent],
+  imports: [CommonModule, GraphComponent, FormsModule],
   templateUrl: './asset-details.component.html',
   styleUrl: './asset-details.component.css',
   standalone: true,
 })
 export class AssetDetailsComponent implements OnInit, OnDestroy {
-
   symbol: string | null = null;
   cryptoQuote?: CryptoQuote;
   orderQuote?: OrderQuote;
   recentTrades?: RecentTrade[] = [];
+  buyQuantity: number = 0;
+  buySliderValue: number = 0;
+  sellSliderValue: number = 0;
   private maxTrades = 20;
 
   asksView: DepthRow[] = [];
@@ -40,14 +44,16 @@ export class AssetDetailsComponent implements OnInit, OnDestroy {
   selectedQty?: number;
 
   private subs: Subscription[] = [];
+  sellQuantity: any;
 
-  constructor(private route: ActivatedRoute, private signalR: SignalRService) { }
+
+  constructor(private route: ActivatedRoute, private signalR: SignalRService, private assetService: AssetService, private toastrService: CustomToastrService) { }
 
   async ngOnInit() {
     this.symbol = this.route.snapshot.paramMap.get('symbol');
     if (!this.symbol) return;
 
-    await this.signalR.startConnection('http://localhost:5217/crypto-hub');
+    await this.signalR.startConnection('http://localhost:5217/private-crypto-hub');
 
     await this.signalR.join(this.signalR.trade(this.symbol));
     await this.signalR.join(this.signalR.depth(this.symbol));
@@ -90,7 +96,6 @@ export class AssetDetailsComponent implements OnInit, OnDestroy {
         })
     );
 
-    // Subscribe to depth data
     this.subs.push(
       this.signalR.on<OrderQuote>('ReceiveBinanceDepthDataUpdateNotification')
         .subscribe(d => {
@@ -124,7 +129,23 @@ export class AssetDetailsComponent implements OnInit, OnDestroy {
     }
     this.tradeBuffer = [];
   }
+  onBuySliderChange(value: number): void {
+    this.buySliderValue = value;
+    this.buyQuantity = parseFloat((value / 100).toFixed(2));
+  }
+  onBuyQuantityChange(value: number): void {
+    this.buyQuantity = value;
+    this.buySliderValue = Math.round(value * 100);
+  }
 
+  onSellQuantityChange(value: number): void {
+    this.sellQuantity = value;
+    this.sellSliderValue = Math.round(value * 100);
+  }
+  onSellSliderChange(value: number): void {
+    this.sellSliderValue = value;
+    this.sellQuantity = parseFloat((value / 100).toFixed(2));
+  }
   private buildDepthViews(d: OrderQuote) {
     const asks = [...(d.asks || [])].sort((a, b) => a.price - b.price).slice(0, 15);
     const bids = [...(d.bids || [])].sort((a, b) => b.price - a.price).slice(0, 15);
@@ -169,4 +190,36 @@ export class AssetDetailsComponent implements OnInit, OnDestroy {
     this.selectedPrice = price;
     this.selectedQty = qty;
   }
+
+  async buyAsset() {
+    const buyAssetDto: AssetDto = {
+      symbol: this.symbol!,
+      amount: this.buyQuantity,
+      assetClass: "CRYPTO"
+    };
+    const res = await this.assetService.buyAsset(buyAssetDto);
+    if (res.succeeded) {
+      this.toastrService.showToastr(res.message, "Satin alimi gerceklesti", {
+        type: ToastrType.Succes,
+        position: ToastrPosition.TopCenter
+      });
+    }
+  }
+
+  async sellAsset() {
+    const sellAssetDto: AssetDto = {
+      symbol: this.symbol!,
+      amount: this.sellQuantity,
+      assetClass: 'CRYPTO'
+    };
+    const res = await this.assetService.selAsset(sellAssetDto);
+    if (res.succeeded) {
+      this.toastrService.showToastr(res.message, "Satis islemi gerceklesti", {
+        type: ToastrType.Succes,
+        position: ToastrPosition.TopCenter
+      });
+    }
+  }
+
+
 }

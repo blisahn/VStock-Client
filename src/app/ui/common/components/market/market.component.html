@@ -27,17 +27,15 @@
                                 <th class="text-center font-semibold">Sembol</th>
                                 <th class="text-right font-semibold">Fiyat</th>
                                 <th class="text-center font-semibold">Güncelleme</th>
-                                <th class="text-center font-semibold">İşlem</th>
+                                <th class="text-center font-semibold" *ngIf="authService.isAuthenticated()">İşlem</th>
                             </tr>
                         </thead>
 
-                        <!-- Tablo Gövdesi -->
                         <tbody>
                             <tr *ngFor="let q of marketData; let i = index; trackBy: trackBySymbol"
                                 class="hover:bg-base-200 transition-colors group" [class.flash-up]="q._flash === 'up'"
                                 [class.flash-down]="q._flash === 'down'">
 
-                                <!-- Sembol Kolonu -->
                                 <td>
                                     <div class="flex items-center gap-3">
                                         <span class="text-base-content/50 text-sm w-8">{{ i + 1 }}</span>
@@ -61,7 +59,6 @@
                                     </div>
                                 </td>
 
-                                <!-- Fiyat Kolonu -->
                                 <td class="text-right relative">
                                     <div class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md transition-all"
                                         [class.flash-up]="q._flash === 'up'" [class.flash-down]="q._flash === 'down'"
@@ -71,7 +68,6 @@
                                              'text-base-content': q._trend === 'same'
                                          }">
 
-                                        <!-- Trend İkonu Sol -->
                                         <span class="inline-block w-4 h-4" *ngIf="q._trend !== 'same'">
                                             <svg *ngIf="q._trend === 'up'" class="w-4 h-4 fill-current animate-bounce"
                                                 viewBox="0 0 20 20">
@@ -83,12 +79,10 @@
                                             </svg>
                                         </span>
 
-                                        <!-- Fiyat -->
                                         <span class="font-mono text-lg tracking-tight">
                                             {{ q.price | currency:'USD':'symbol':'1.2-4' }}
                                         </span>
 
-                                        <!-- Önceki Fiyat (küçük) -->
                                         <span class="text-xs text-base-content/40 ml-1" *ngIf="q._prevPrice">
                                             <span *ngIf="q._trend === 'up'">↑</span>
                                             <span *ngIf="q._trend === 'down'">↓</span>
@@ -104,7 +98,7 @@
                                 </td>
 
                                 <!-- İşlem Butonu -->
-                                <td class="text-center">
+                                <td class="text-center" *ngIf="authService.isAuthenticated()">
                                     <button
                                         class="btn btn-sm btn-ghost group-hover:btn-primary transition-all duration-200"
                                         [routerLink]="['/market/details', q.symbol]">

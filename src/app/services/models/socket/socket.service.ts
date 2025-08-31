@@ -2,12 +2,15 @@ import { Injectable } from "@angular/core";
 import { CustomHttpClient } from "../../common/customhttp.service";
 import { BaseApiResponse } from "../../../contract/helpers/BaseApiResponse";
 import { firstValueFrom } from "rxjs";
-import { GraphQuote } from "../../../contract/market/common/GraphQuote";
+import { GraphQuote } from "../../../contract/market/common/crypto/GraphQuote";
+import { GetALlAssetsResponseDto } from "../../../contract/user/admin/socket/GetAllAssetsResponseDto";
+import { CreateAssetContract } from "../../../contract/user/admin/socket/CreateAssetContract";
 
 @Injectable({
     providedIn: 'root'
 })
 export class SocketService {
+
     constructor(private customHttpClient: CustomHttpClient,
     ) { }
 
@@ -40,5 +43,57 @@ export class SocketService {
             throw err;
         }
     }
+    async createAssetAsync(assetToCreate: CreateAssetContract): Promise<BaseApiResponse> {
+        try {
+            const observable$ = await this.customHttpClient.post<BaseApiResponse, CreateAssetContract>({
+                controller: "socket",
+                action: "createassetsymbol"
+            }, assetToCreate);
+            const res = await firstValueFrom(observable$);
+            return res;
+        } catch (err) {
+            throw (err);
+        }
+    }
+
+    async getSpecifiedAssets(assettClass: string): Promise<BaseApiResponse<GetALlAssetsResponseDto>> {
+        let queryString = `?AssetClass=${assettClass}`;
+        const request$ = this.customHttpClient.get<BaseApiResponse<GetALlAssetsResponseDto>>({
+            controller: "socket",
+            action: "GetAssetSymbols",
+            queryString: queryString
+        });
+        const res = await firstValueFrom(request$);
+        return res;
+
+    }
+
+    async updateAssetVisibility(symbolId: string, IsVisibleForNonLogin: boolean, isActive: boolean) {
+        try {
+            const observable$ = this.customHttpClient.put<BaseApiResponse>({
+                controller: "socket",
+                action: "UpdateAssetVisibility"
+            }, { id: symbolId, IsVisibleForNonLogin, isActive })
+            const res = await firstValueFrom(observable$);
+            return res;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    async updateAssetVisibilityForNonLogin(symbolId: string, IsVisibleForNonLogin: boolean, isActive: boolean) {
+        try {
+            const observable$ = this.customHttpClient.put<BaseApiResponse>({
+                controller: "socket",
+                action: "UpdateAssetVisibility"
+            }, { id: symbolId, IsVisibleForNonLogin, isActive })
+            const res = await firstValueFrom(observable$);
+            return res;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+
 
 }

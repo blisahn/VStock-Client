@@ -9,8 +9,14 @@ import { LoginUserDto } from '../../../contract/user/common/LoginUserDto';
 import { BaseApiResponse } from '../../../contract/helpers/BaseApiResponse';
 import { Token } from '../../../contract/token/Token';
 import { SignalRService } from '../../signalR/signal-r.service';
-import { CryptoQuote } from '../../../contract/market/common/CryptoQuote';
 
+
+type TokenDto = {
+  accessToken: string;
+  refreshToken: string;
+  expiration?: string;                 // gerekliyse
+  refreshTokenExpiresAtUtc?: string;   // ISO
+};
 @Injectable({
   providedIn: 'root'
 })
@@ -32,10 +38,8 @@ export class UserAuthService {
 
       if (res.succeeded && res.data?.accessToken) {
         const t = res.data;
-        sessionStorage.setItem('accessToken', t.accessToken);
-        sessionStorage.setItem('refreshToken', t.refreshToken);
-        localStorage.setItem('expiration', t.expiration.toString());
-        localStorage.setItem('refreshTokenExpirationDate', t.refreshTokenExpiresAtUtc.toString());
+        this.auth.setTokens(t.accessToken, t.refreshToken);
+        this.auth.setDates(t.expiration, t.refreshTokenExpiresAtUtc)
       }
       return res;
     } catch (err) {
@@ -51,10 +55,8 @@ export class UserAuthService {
         action: "refreshTokenLogin"
       }, { refreshToken: rt })
       let res = await firstValueFrom(request$);
-      sessionStorage.setItem('accessToken', res!.data!.accessToken!);
-      sessionStorage.setItem('refreshToken', res!.data!.refreshToken!);
-      if (res!.data!.expiration) localStorage.setItem('expiration', res!.data!.expiration.toString());
-      if (res!.data!.refreshTokenExpiresAtUtc) localStorage.setItem('refreshTokenExpirationDate', res!.data!.refreshTokenExpiresAtUtc.toString());
+      this.auth.setTokens(res.data!.accessToken, res.data!.refreshToken);
+      this.auth.setDates(res.data!.expiration, res.data!.refreshTokenExpiresAtUtc);
       return res;
     } catch (err) {
       throw (err);

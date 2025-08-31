@@ -7,13 +7,13 @@ import { AuthService } from '../../../../../../services/models/auth.service';
 import { UserDetailsModalComponent } from "./user-details/user-details-modal/user-details-modal.component";
 import { ReactiveFormsModule } from '@angular/forms';
 import { PagedResult } from '../../../../../../contract/helpers/PagedResult';
-import { UserListItemContract } from '../../../../../../contract/user/admin/UserListItemContract';
+import { UserListItemContract } from '../../../../../../contract/user/admin/user/UserListItemContract';
 
 @Component({
-    selector: 'app-admin-users-list',
-    imports: [CommonModule, UserDetailsModalComponent, ReactiveFormsModule],
-    templateUrl: './users.list.table.component.html',
-    styleUrl: './users.list.table.component.css'
+  selector: 'app-admin-users-list',
+  imports: [CommonModule, UserDetailsModalComponent, ReactiveFormsModule],
+  templateUrl: './users.list.table.component.html',
+  styleUrl: './users.list.table.component.css'
 })
 export class UsersTableComponent implements OnInit {
 

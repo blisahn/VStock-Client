@@ -10,9 +10,9 @@ import { UpdateProfileDto } from '../../../../../contract/user/common/UpdateProf
 
 
 @Component({
-    selector: 'app-profile-settings',
-    imports: [CommonModule, ReactiveFormsModule],
-    templateUrl: './profile-details.component.html'
+  selector: 'app-profile-settings',
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './profile-details.component.html'
 })
 export class ProfileDetailsComponent implements OnInit {
 
@@ -89,8 +89,7 @@ export class ProfileDetailsComponent implements OnInit {
       this.initialValue = payload;
       this.profileForm.markAsPristine();
     } catch (err: any) {
-      this.userAuth.refreshTokenLogin();
-      console.error(err)
+      throw (err);
     } finally {
       this.isSaving = false;
     }

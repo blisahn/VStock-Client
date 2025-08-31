@@ -131,9 +131,9 @@
             <div class="bg-base-100 rounded-lg shadow-md p-4">
                 <!-- Tab Başlıkları -->
                 <div class="flex gap-2 mb-4">
-                    <button class="flex-1 btn btn-sm btn-ghost border-b-2 border-success">Limit</button>
+                    <!-- <button class="flex-1 btn btn-sm btn-ghost border-b-2 border-success">Limit</button>
                     <button class="flex-1 btn btn-sm btn-ghost">Market</button>
-                    <button class="flex-1 btn btn-sm btn-ghost">Stop Limit</button>
+                    <button class="flex-1 btn btn-sm btn-ghost">Stop Limit</button> -->
                 </div>
 
                 <!-- Al ve Sat Panelleri -->
@@ -142,25 +142,18 @@
                     <div class="space-y-3">
                         <div class="form-control">
                             <label class="label py-1">
-                                <span class="label-text text-xs">Fiyat</span>
-                                <span class="label-text-alt text-xs">USDT</span>
-                            </label>
-                            <input type="number" class="input input-bordered input-sm bg-base-200/50"
-                                [value]="selectedPrice ?? bestAsk ?? cryptoQuote?.price" placeholder="114,225.51" />
-                        </div>
-
-                        <div class="form-control">
-                            <label class="label py-1">
                                 <span class="label-text text-xs">Miktar</span>
                                 <span class="label-text-alt text-xs">{{symbol}}</span>
                             </label>
                             <input type="number" class="input input-bordered input-sm bg-base-200/50"
-                                [value]="selectedQty ?? 0" placeholder="0.00" />
+                                [(ngModel)]="buyQuantity" (ngModelChange)="onBuyQuantityChange($event)"
+                                placeholder="0.00" step="0.01" min="0" max="1" />
                         </div>
 
                         <!-- Slider -->
                         <div class="py-2">
-                            <input type="range" min="0" max="100" value="0" class="range range-xs range-success" />
+                            <input type="range" min="0" max="100" [(ngModel)]="buySliderValue"
+                                (ngModelChange)="onBuySliderChange($event)" class="range range-xs range-success" />
                             <div class="flex justify-between text-xs px-1 mt-1">
                                 <span>0%</span>
                                 <span>25%</span>
@@ -171,15 +164,15 @@
                         </div>
 
                         <!-- TP/SL Checkbox -->
-                        <div class="form-control">
+                        <!-- <div class="form-control">
                             <label class="label cursor-pointer py-1">
                                 <span class="label-text text-xs">TP/SL</span>
                                 <input type="checkbox" class="checkbox checkbox-xs" />
                             </label>
-                        </div>
+                        </div> -->
 
                         <!-- Özet Bilgiler -->
-                        <div class="space-y-1 text-xs">
+                        <!-- <div class="space-y-1 text-xs">
                             <div class="flex justify-between">
                                 <span class="text-base-content/60">Avbl</span>
                                 <span>- USDT</span>
@@ -188,10 +181,10 @@
                                 <span class="text-base-content/60">Max Buy</span>
                                 <span>-- {{symbol}}</span>
                             </div>
-                        </div>
+                        </div> -->
 
                         <!-- Al Butonu -->
-                        <button class="btn btn-success btn-sm w-full">
+                        <button (click)="buyAsset()" class="btn btn-success btn-sm w-full">
                             AL
                         </button>
                     </div>
@@ -200,25 +193,18 @@
                     <div class="space-y-3">
                         <div class="form-control">
                             <label class="label py-1">
-                                <span class="label-text text-xs">Fiyat</span>
-                                <span class="label-text-alt text-xs">USDT</span>
-                            </label>
-                            <input type="number" class="input input-bordered input-sm bg-base-200/50"
-                                [value]="selectedPrice ?? bestBid ?? cryptoQuote?.price" placeholder="114,225.51" />
-                        </div>
-
-                        <div class="form-control">
-                            <label class="label py-1">
                                 <span class="label-text text-xs">Miktar</span>
                                 <span class="label-text-alt text-xs">{{symbol}}</span>
                             </label>
                             <input type="number" class="input input-bordered input-sm bg-base-200/50"
-                                [value]="selectedQty ?? 0" placeholder="0.00" />
+                                [(ngModel)]="sellQuantity" (ngModelChange)="onSellQuantityChange($event)"
+                                placeholder="0.00" step="0.01" min="0" max="1" />
                         </div>
 
                         <!-- Slider -->
                         <div class="py-2">
-                            <input type="range" min="0" max="100" value="0" class="range range-xs range-error" />
+                            <input type="range" min="0" max="100" [(ngModel)]="sellSliderValue"
+                                (ngModelChange)="onSellSliderChange($event)" class="range range-xs range-error" />
                             <div class="flex justify-between text-xs px-1 mt-1">
                                 <span>0%</span>
                                 <span>25%</span>
@@ -228,28 +214,8 @@
                             </div>
                         </div>
 
-                        <!-- TP/SL Checkbox -->
-                        <div class="form-control">
-                            <label class="label cursor-pointer py-1">
-                                <span class="label-text text-xs">TP/SL</span>
-                                <input type="checkbox" class="checkbox checkbox-xs" />
-                            </label>
-                        </div>
-
-                        <!-- Özet Bilgiler -->
-                        <div class="space-y-1 text-xs">
-                            <div class="flex justify-between">
-                                <span class="text-base-content/60">Avbl</span>
-                                <span>- {{symbol}}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-base-content/60">Max Sell</span>
-                                <span>-- USDT</span>
-                            </div>
-                        </div>
-
                         <!-- Sat Butonu -->
-                        <button class="btn btn-error btn-sm w-full">
+                        <button (click)="sellAsset()" class="btn btn-error btn-sm w-full">
                             SAT
                         </button>
                     </div>

@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { combineLatest, debounceTime, firstValueFrom } from 'rxjs';
 import { CreateUserDto } from '../../../contract/user/common/CreateUserDto';
 import { CustomHttpClient } from '../../common/customhttp.service';
-import { GetAllUsersResponseDto } from '../../../contract/user/admin/GetAllUsersResponseDto';
-import { FetchUserDto as FetchUserDetailsDto } from '../../../contract/user/admin/FetchUserDto';
-import { AssignRoleDto } from '../../../contract/user/admin/AssignRoleDto';
-import { UpdateUserDto } from '../../../contract/user/admin/UpdateUserDto';
 import { UpdateProfileDto } from '../../../contract/user/common/UpdateProfileDto';
 import { BaseApiResponse } from '../../../contract/helpers/BaseApiResponse';
 import { FetchProfileDto } from '../../../contract/user/common/FetchProfileDto';
+import { FetchUserDto } from '../../../contract/user/admin/user/FetchUserDto';
+import { AssignRoleDto } from '../../../contract/user/admin/user/AssignRoleDto';
+import { GetAllUsersResponseDto } from '../../../contract/user/admin/user/GetAllUsersResponseDto';
+import { UpdateUserDto } from '../../../contract/user/admin/user/UpdateUserDto';
 
 
 @Injectable({
@@ -22,28 +22,23 @@ export class UserService {
   }
 
   async create(user: CreateUserDto): Promise<BaseApiResponse> {
-    console.log("UserService: create called with user:", user);
     try {
-      console.log("UserService: sending request to create user");
       debugger;
       const observable = await this.customHttpClient.post<BaseApiResponse, CreateUserDto>({
         controller: 'users',
         action: 'createuser'
       }, user);
       debugger;
-      console.log("request sent, waiting for response...");
       const res = await firstValueFrom(observable);
-      console.log("UserService: create response:", res);
       return res;
     } catch (err) {
-      console.error("UserService: create error:", err);
       throw err;
     }
   }
 
-  async getUserDetails(id: string): Promise<BaseApiResponse<FetchUserDetailsDto>> {
+  async getUserDetails(id: string): Promise<BaseApiResponse<FetchUserDto>> {
     try {
-      const request$ = this.customHttpClient.get<BaseApiResponse<FetchUserDetailsDto>>({
+      const request$ = this.customHttpClient.get<BaseApiResponse<FetchUserDto>>({
         controller: "users",
         action: "getuserDetails",
       }, id);

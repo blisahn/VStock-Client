@@ -1,163 +1,321 @@
-<div class="max-w-5xl mx-auto p-6">
-    <!-- Wallet Balance Card -->
-    <div class="bg-base-100 rounded-lg shadow-md border border-base-300 p-6 mb-8">
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <h2 class="text-2xl font-bold text-base-content">Cüzdan</h2>
-                <p class="text-base-content/60 mt-1">Para yatırın ve işlemlerinizi takip edin</p>
-            </div>
-            <div class="stats shadow">
-                <div class="stat">
-                    <div class="stat-title text-xs">Bakiye</div>
-                    <div class="stat-value text-lg text-success">{{ balance | currency:'USD' }}</div>
+<div class="max-w-7xl mx-auto p-6">
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <!-- Left Column: Wallet and Transactions -->
+        <div class="xl:col-span-2 space-y-6">
+            <!-- Wallet Balance Card -->
+            <div class="bg-base-100 rounded-lg shadow-md border border-base-300 p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-base-content">Cüzdan</h2>
+                        <p class="text-base-content/60 mt-1">Para yatırın ve işlemlerinizi takip edin</p>
+                    </div>
+                    <div class="stats shadow">
+                        <div class="stat">
+                            <div class="stat-title text-xs">Bakiye</div>
+                            <div class="stat-value text-lg text-success">{{ balance | currency:'USD' }}</div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Deposit Form -->
-        <form #depositForm="ngForm" (ngSubmit)="makeDeposit(depositAmount)" class="max-w-md" novalidate>
-            <div class="form-control w-full">
-                <label class="label">
-                    <span class="label-text font-medium">Para Yatır</span>
-                </label>
-                <input type="number" [(ngModel)]="depositAmount" name="depositAmount" placeholder="Miktar girin"
-                    required min="0.01" step="0.01" class="input input-bordered w-full h-12" #amountCtrl="ngModel" />
+                <!-- Deposit Form -->
+                <form #depositForm="ngForm" (ngSubmit)="makeDeposit(depositAmount)" class="max-w-md" novalidate>
+                    <div class="form-control w-full">
+                        <label class="label">
+                            <span class="label-text font-medium">Para Yatır</span>
+                        </label>
+                        <input type="number" [(ngModel)]="depositAmount" name="depositAmount" placeholder="Miktar girin"
+                            required min="0.01" step="0.01" class="input input-bordered w-full h-12"
+                            #amountCtrl="ngModel" />
 
-                <div class="label" *ngIf="amountCtrl.invalid && (amountCtrl.dirty || amountCtrl.touched)">
-                    <span class="label-text-alt text-error" *ngIf="amountCtrl.errors?.['required']">
-                        Tutar zorunludur.
-                    </span>
-                    <span class="label-text-alt text-error" *ngIf="amountCtrl.errors?.['min']">
-                        Tutar 0.01'den büyük olmalı.
-                    </span>
-                </div>
-            </div>
-
-            <div class="mt-4">
-                <button type="submit" class="btn btn-primary w-full h-12" [disabled]="depositForm.invalid">
-                    Para Yatır
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Transaction History -->
-    <div class="bg-base-100 rounded-lg shadow-md border border-base-300">
-        <!-- Header -->
-        <div class="px-6 py-4 border-b border-base-300">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="text-xl font-bold text-base-content">İşlem Geçmişi</h3>
-                    <p class="text-sm text-base-content/60 mt-1" *ngIf="transactionHistory?.items?.length">
-                        Toplam {{ transactionHistory?.items?.length }} kayıt
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Table Content -->
-        <div class="overflow-x-auto" *ngIf="transactionHistory?.totalCount; else noDeposits">
-            <!-- Desktop Table -->
-            <table class="table table-zebra w-full hidden md:table">
-                <thead class="sticky top-0 bg-base-100 z-10">
-                    <tr>
-                        <th class="text-left font-semibold">Tarih</th>
-                        <th class="text-left font-semibold">İşlem</th>
-                        <th class="text-center font-semibold">Sembol</th>
-                        <th class="text-right font-semibold">Miktar</th>
-                        <th class="text-right font-semibold">Birim Fiyat</th>
-                        <th class="text-right font-semibold">Toplam</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let d of transactionHistory!.items" class="hover:bg-base-200 transition-colors">
-                        <td class="whitespace-nowrap text-sm">
-                            {{ d.executedAt | date:'medium' }}
-                        </td>
-                        <td>
-                            <div class="badge badge-sm" [ngClass]="{
-                                     'badge-success': d.type === 'Deposit',
-                                     'badge-error': d.type === 'Withdraw',
-                                     'badge-info': d.type === 'Buy',
-                                     'badge-warning': d.type === 'Sell'
-                                 }">
-                                {{ d.type }}
-                            </div>
-                        </td>
-                        <td class="text-center">
-                            <span class="font-mono font-medium">{{ d.symbol }}</span>
-                        </td>
-                        <td class="text-right font-medium">
-                            {{ d.quantity | number:'1.0-8' }}
-                        </td>
-                        <td class="text-right">
-                            {{ d.price | currency:(d.symbol || 'USD'):'symbol':'1.2-6' }}
-                        </td>
-                        <td class="text-right font-bold">
-                            {{ (d.quantity * d.price) | currency:(d.symbol || 'USD'):'symbol':'1.2-2' }}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <!-- Mobile Cards -->
-            <div class="md:hidden p-4 space-y-4">
-                <div *ngFor="let d of transactionHistory?.items" class="card card-sm bg-base-200 shadow-sm">
-                    <div class="card-body">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-sm text-base-content/60">
-                                {{ d.executedAt | date:'short' }}
+                        <div class="label" *ngIf="amountCtrl.invalid && (amountCtrl.dirty || amountCtrl.touched)">
+                            <span class="label-text-alt text-error" *ngIf="amountCtrl.errors?.['required']">
+                                Tutar zorunludur.
                             </span>
-                            <div class="badge badge-sm" [ngClass]="{
-                                     'badge-success': d.type === 'Deposit',
-                                     'badge-error': d.type === 'Withdraw',
-                                     'badge-info': d.type === 'Buy',
-                                     'badge-warning': d.type === 'Sell'
-                                 }">
-                                {{ d.type }}
+                            <span class="label-text-alt text-error" *ngIf="amountCtrl.errors?.['min']">
+                                Tutar 0.01'den büyük olmalı.
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary w-full h-12" [disabled]="depositForm.invalid">
+                            Para Yatır
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Transaction History -->
+            <div class="bg-base-100 rounded-lg shadow-md border border-base-300">
+                <!-- Header -->
+                <div class="px-6 py-4 border-b border-base-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-base-content">İşlem Geçmişi</h3>
+                            <p class="text-sm text-base-content/60 mt-1" *ngIf="transactionHistory?.items?.length">
+                                Toplam {{ transactionHistory?.items?.length }} kayıt
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Content -->
+                <div class="overflow-x-auto" *ngIf="transactionHistory?.totalCount; else noDeposits">
+                    <!-- Desktop Table -->
+                    <table
+                        class="table table-zebra w-full hidden md:table  cursor-pointer active:scale-95 transition-transform">
+                        <thead class="sticky top-0 bg-base-100 z-10">
+                            <tr>
+                                <th class="text-left font-semibold">Tarih</th>
+                                <th class="text-left font-semibold">İşlem</th>
+                                <th class="text-center font-semibold">Sembol</th>
+                                <th class="text-right font-semibold">Miktar</th>
+                                <th class="text-right font-semibold">Alim Fiyati</th>
+                                <th class="text-right font-semibold">Kar/Zarar</th>
+                                <th class="text-right font-semibold">Toplam</th>
+                            </tr>
+                        </thead>
+                        <tbody class="cursor-pointer active:scale-95 transition-transform">
+                            <tr *ngFor="let d of transactionHistory!.items" class="hover:bg-base-200 transition-colors">
+                                <td class="whitespace-nowrap text-sm">
+                                    {{ d.executedAt | date:'medium' }}
+                                </td>
+                                <td>
+                                    <div class="badge badge-sm" [ngClass]="{
+                                             'badge-success': d.type === 'DEPOSIT',
+                                             'badge-error': d.type === 'WITHDRAWAL',
+                                             'badge-info': d.type === 'BUY',
+                                             'badge-warning': d.type === 'SELL'
+                                         }">
+                                        {{ d.type }}
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="font-mono font-medium">{{ d.symbol }}</span>
+                                </td>
+                                <td class="text-right font-medium">
+                                    {{ d.quantity | pretty:0:8 }}
+                                </td>
+                                <td class="text-right">
+                                    {{ d.type === 'DEPOSIT' ? '1.000' : (d.price | pretty:0:8)}}
+                                </td>
+                                <td class="text-right">
+                                    <ng-container *ngIf="d.type === 'BUY' && d.currentAssetPrice != null; else dash">
+                                        <span [ngClass]="pnlClass(calcTxnPnl(d))">
+                                            {{ calcTxnPnl(d) >= 0 ? '+' : '' }}
+                                            {{ calcTxnPnl(d) | currency:'USD':'symbol':'1.2-6' }}
+                                        </span>
+                                    </ng-container>
+                                    <ng-template #dash>—</ng-template>
+                                </td>
+
+                                <td class="text-right font-bold">
+                                    {{( d.type === 'DEPOSIT' ? (d.quantity) : (d.price * d.quantity)) |
+                                    currency:'USD':'symbol':'1.2-6'}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Mobile Cards -->
+                    <div class="md:hidden p-4 space-y-4">
+                        <div *ngFor="let d of transactionHistory?.items" class="card card-sm bg-base-200 shadow-sm">
+                            <div class="card-body">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-sm text-base-content/60">
+                                        {{ d.executedAt | date:'short' }}
+                                    </span>
+                                    <div class="badge badge-sm" [ngClass]="{
+                                             'badge-success': d.type === 'Deposit',
+                                             'badge-error': d.type === 'Withdraw',
+                                             'badge-info': d.type === 'Buy',
+                                             'badge-warning': d.type === 'Sell'
+                                         }">
+                                        {{ d.type }}
+                                    </div>
+                                </div>
+                                <div class="badge badge-sm" [ngClass]="{
+                                  'badge-success': d.type === 'DEPOSIT',
+                                  'badge-error':   d.type === 'WITHDRAWAL',
+                                  'badge-info':    d.type === 'BUY',
+                                  'badge-warning': d.type === 'SELL'
+                                }">
+                                    {{ d.type }}
+                                </div>
+                                <div class="grid grid-cols-2 gap-3 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-base-content/60">Sembol:</span>
+                                        <span class="font-mono font-medium">{{ d.symbol }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-base-content/60">Miktar:</span>
+                                        <span class="font-medium">{{ d.quantity | pretty:0:8 }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-base-content/60">Fiyat:</span>
+                                        {{ d.type === 'DEPOSIT' ? (d.quantity) : (d.price | pretty:0:6) }}
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-base-content/60">K/Z:</span>
+                                        <span [ngClass]="pnlClass(calcTxnPnl(d))">
+                                            <ng-container
+                                                *ngIf="d.type === 'BUY' && d.currentAssetPrice != null; else dashMob">
+                                                {{ calcTxnPnl(d) >= 0 ? '+' : '' }}
+                                                {{ calcTxnPnl(d) | currency:'USD':'symbol':'1.2-6' }}
+                                            </ng-container>
+                                            <ng-template #dashMob>—</ng-template>
+                                        </span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-base-content/60">Toplam:</span>
+                                        <span class="font-bold">
+                                            {{ (d.type === 'DEPOSIT' ? (d.quantity):(d.price * d.quantity))
+                                            | currency:'USD':'symbol':'1.2-6' }}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="grid grid-cols-2 gap-3 text-sm">
-                            <div class="flex justify-between">
-                                <span class="text-base-content/60">Sembol:</span>
-                                <span class="font-mono font-medium">{{ d.symbol }}</span>
+                <!-- Empty State -->
+                <ng-template #noDeposits>
+                    <div class="flex flex-col items-center justify-center py-16 px-4">
+                        <div class="w-24 h-24 mb-4 rounded-full bg-base-300 flex items-center justify-center">
+                            <svg class="w-12 h-12 text-base-content/30" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">Henüz İşlem Yok</h3>
+                        <p class="text-sm text-base-content/60 text-center max-w-md">
+                            İlk para yatırma işleminizi yapın ve işlem geçmişiniz burada görünecek.
+                        </p>
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+
+        <!-- Right Column: Assets -->
+        <div class="xl:col-span-1">
+            <div class="bg-base-100 rounded-lg shadow-md border border-base-300 sticky top-6">
+                <!-- Assets Header -->
+                <div class="px-6 py-4 border-b border-base-300">
+                    <h3 class="text-xl font-bold text-base-content">Mal Varlıkları</h3>
+                    <p class="text-sm text-base-content/60 mt-1">Portföy özeti</p>
+                </div>
+
+                <!-- Assets Content -->
+                <div class="p-6 ">
+                    <!-- Total Portfolio Value -->
+                    <div class="bg-base-200 rounded-lg p-4 mb-6">
+                        <div class="text-sm text-base-content/60 mb-1">Toplam Değer</div>
+                        <div class="text-2xl font-bold text-base-content">{{ totalPortfolioValue | currency:'USD' }}
+                        </div>
+                        <div class="flex items-center gap-2 mt-2" *ngIf="portfolioChangePercent !== 0">
+                            <div class="badge badge-sm"
+                                [ngClass]="portfolioChangePercent >= 0 ? 'badge-success' : 'badge-error'">
+                                <span *ngIf="portfolioChangePercent >= 0">+</span>{{ portfolioChangePercent |
+                                number:'1.2-6' }}%
                             </div>
-                            <div class="flex justify-between">
-                                <span class="text-base-content/60">Miktar:</span>
-                                <span class="font-medium">{{ d.quantity | number:'1.0-8' }}</span>
+                            <span class="text-xs text-base-content/60">24s</span>
+                        </div>
+                    </div>
+
+                    <!-- Assets List -->
+                    <div class="space-y-4" *ngIf="holdings! && holdings.length > 0; else noAssets">
+                        <div *ngFor="let holding of holdings">
+                            <div class="border border-base-300 rounded-lg p-4 hover:bg-base-200/50  cursor-pointer active:scale-95 transition-transform"
+                                (click)="navigateDetails(holding.symbol)">
+                                <div class="flex items-center justify-between mb-2  ">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                            <span class="text-xs font-bold text-primary">{{ holding.symbol.charAt(0)
+                                                }}</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-medium text-base-content">{{ holding.symbol }}</div>
+                                            <div class="text-xs text-base-content/60">{{ holding.name }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-medium text-base-content">{{ holding.marketPrice|
+                                            currency:'USD':'symbol':'1.2-6' }}</div>
+                                        <div class="text-xs"
+                                            [ngClass]="holding.changePercent >= 0 ? 'text-success' : 'text-error'">
+                                            <span *ngIf="holding.changePercent >= 0">+</span>{{ holding.changePercent |
+                                            number:'1.2-6' }}%
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between text-sm mt-3">
+                                    <span class="text-base-content/60">Miktar</span>
+                                    <span class="font-medium">{{ holding.quantity | pretty:0:8 }}</span>
+                                </div>
+                                <div class="flex justify-between text-sm mt-1">
+                                    <span class="text-base-content/60">Fiyat</span>
+                                    <span class="font-medium">{{ holding.currentPrice | currency:'USD':'symbol':'1.2-6'
+                                        }}</span>
+                                </div>
+                                <div class="flex justify-between text-sm mt-1">
+                                    <span class="text-base-content/60">Ort. Maliyet</span>
+                                    <span class="font-medium">{{ holding.averageCost | currency:'USD':'symbol':'1.2-6'
+                                        }}</span>
+                                </div>
+                                <div class="mt-3 pt-3 border-t border-base-300">
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-base-content/60">K/Z</span>
+                                        <span class="font-medium"
+                                            [ngClass]="holding.profitLoss >= 0 ? 'text-success' : 'text-error'">
+                                            <span *ngIf="holding.profitLoss >= 0">+</span>{{ holding.profitLoss |
+                                            currency:'USD':'symbol':'1.2-6' }}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="flex justify-between">
-                                <span class="text-base-content/60">Fiyat:</span>
-                                <span>{{ d.price | currency:(d.symbol || 'USD'):'symbol':'1.2-6' }}</span>
+                        </div>
+                    </div>
+
+                    <!-- No Assets State -->
+                    <ng-template #noAssets>
+                        <div class="text-center py-8">
+                            <div
+                                class="w-16 h-16 mx-auto mb-4 rounded-full bg-base-300 flex items-center justify-center">
+                                <svg class="w-8 h-8 text-base-content/30" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                </svg>
                             </div>
-                            <div class="flex justify-between">
-                                <span class="text-base-content/60">Toplam:</span>
-                                <span class="font-bold">
-                                    {{ (d.quantity * d.price) | currency:(d.symbol || 'USD'):'symbol':'1.2-2' }}
-                                </span>
-                            </div>
+                            <h4 class="text-base font-medium mb-2">Varlık Bulunamadı</h4>
+                            <p class="text-sm text-base-content/60">Henüz bir varlığınız yok.</p>
+                        </div>
+                    </ng-template>
+
+                    <!-- Quick Actions -->
+                    <div class="mt-6 pt-6 border-t border-base-300">
+                        <div class="grid grid-cols-2 gap-3">
+                            <button class="btn btn-sm btn-primary">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Al
+                            </button>
+                            <button class="btn btn-sm btn-outline">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4">
+                                    </path>
+                                </svg>
+                                Sat
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Empty State -->
-        <ng-template #noDeposits>
-            <div class="flex flex-col items-center justify-center py-16 px-4">
-                <div class="w-24 h-24 mb-4 rounded-full bg-base-300 flex items-center justify-center">
-                    <svg class="w-12 h-12 text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
-                        </path>
-                    </svg>
-                </div>
-                <h3 class="text-lg font-semibold mb-2">Henüz İşlem Yok</h3>
-                <p class="text-sm text-base-content/60 text-center max-w-md">
-                    İlk para yatırma işleminizi yapın ve işlem geçmişiniz burada görünecek.
-                </p>
-            </div>
-        </ng-template>
     </div>
 </div>

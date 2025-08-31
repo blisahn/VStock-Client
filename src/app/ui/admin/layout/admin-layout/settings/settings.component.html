@@ -1,1 +1,222 @@
-<input type="checkbox" value="synthwave" class="toggle theme-controller" />
+<div class="min-h-screen bg-base-200 p-4">
+    <!-- Ana Konteyner -->
+    <div class="max-w-7xl mx-auto">
+        <!-- Asset Yönetimi Kartı -->
+        <div class="bg-base-100 rounded-lg shadow-md">
+            <!-- Başlık Alanı -->
+            <div class="bg-base-100 border-b border-base-300 px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold">Asset Yönetimi</h1>
+                        <p class="text-sm text-base-content/60 mt-1">Kripto Para Varlıklarını Yönet</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <!-- Asset Ekleme Butonu -->
+                        <button class="btn btn-primary btn-sm" *ngIf="canManageAssets" (click)="createAsset()">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Yeni Asset Ekle
+                        </button>
+
+                        <div class="stats shadow-sm bg-base-200">
+                            <div class="stat py-2 px-4">
+                                <div class="stat-title text-xs">Toplam Asset</div>
+                                <div class="stat-value text-lg">{{ totalAssetsCount }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tablo Alanı -->
+            <div class="overflow-x-auto">
+                <ng-container *ngIf="!isLoading">
+                    <ng-container *ngIf="assets!.items!.length! && assets!.items!.length! > 0; else emptyState">
+                        <table class="table table-zebra w-full">
+                            <!-- Tablo Başlıkları -->
+                            <thead class="sticky top-0 bg-base-100 z-10 border-b border-base-300">
+                                <tr>
+                                    <th class="text-center font-semibold w-16">Sıra</th>
+                                    <th class="text-left font-semibold">Asset</th>
+                                    <th class="text-center font-semibold">Sembol</th>
+                                    <th class="text-center font-semibold">Tür</th>
+                                    <th class="text-center font-semibold">Durum</th>
+                                    <th class="text-center font-semibold" *ngIf="canManageAssets">Aktiflik Durumu</th>
+                                    <th class="text-center font-semibold">Durum</th>
+                                    <th class="text-center font-semibold" *ngIf="canManageAssets">Giriş Yapmayan
+                                        Kullanıcılara Görünürlük</th>
+
+                                </tr>
+                            </thead>
+
+                            <!-- Tablo Gövdesi -->
+                            <tbody>
+                                <tr *ngFor=" let asset of assets!.items; let i=index; trackBy: trackByAssetId"
+                                    class="transition-all duration-200" [class.opacity-50]="!asset.isActive"
+                                    [class.pointer-events-none]="!asset!.isActive && !canManageAssets"
+                                    [class.hover:bg-base-200]="asset.isActive">
+
+                                    <!-- Sıra Numarası -->
+                                    <td class="text-center">
+                                        <span class="text-base-content/50 text-sm font-medium">{{ i + 1 }}</span>
+                                    </td>
+
+                                    <!-- Asset Bilgileri -->
+                                    <td>
+                                        <div class="flex items-center gap-3">
+                                            <!-- Asset İkonu -->
+                                            <div class="w-10 h-10 rounded-full flex items-center justify-center transition-all"
+                                                [ngClass]="{
+                                                'bg-primary/20 text-primary': asset.isActive,
+                                                'bg-base-300 text-base-content/40': !asset.isActive
+                                            }">
+                                                <img src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/{{asset.code}}.svg"
+                                                    alt="">
+                                            </div>
+
+
+                                        </div>
+                                    </td>
+
+                                    <!-- Sembol -->
+                                    <td class="text-center">
+                                        <div class="badge badge-outline" [class.badge-primary]="asset.isActive"
+                                            [class.badge-ghost]="!asset.isActive">
+                                            {{ asset.code }}
+                                        </div>
+                                    </td>
+
+                                    <!-- Asset Türü -->
+                                    <td class="text-center">
+                                        <div class="badge" [ngClass]="{
+                                             'badge-info': asset.isActive,
+                                             'badge-warning': !asset.isActive,
+                                         }">
+                                            {{ asset.assetClass }}
+                                        </div>
+                                    </td>
+
+                                    <!-- Durum -->
+                                    <td class="text-center">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <div class="w-2 h-2 rounded-full transition-all" [ngClass]="{
+                                                 'bg-success animate-pulse': asset.isActive,
+                                                 'bg-error': !asset.isActive
+                                             }">
+                                            </div>
+                                            <span class="text-xs font-medium" [class.text-success]="asset.isActive"
+                                                [class.text-error]="!asset.isActive">
+                                                {{ asset.isActive ? 'Aktif' : 'Pasif' }}
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    <!-- Görünürlük Toggle (Sadece yetkili kullanıcılar için) -->
+                                    <td class="text-center" *ngIf="canManageAssets">
+                                        <div class="form-control">
+                                            <label class="cursor-pointer label justify-center">
+                                                <input type="checkbox" class="toggle toggle-success"
+                                                    [checked]="asset.isActive"
+                                                    (change)="toggleAssetVisibility(asset, $event)" [disabled]="false">
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <div class="w-2 h-2 rounded-full transition-all" [ngClass]="{
+                                                                                         'bg-success animate-pulse': asset.isVisibleForNonLogin,
+                                                                                         'bg-error': !asset.isVisibleForNonLogin
+                                                                                     }">
+                                            </div>
+                                            <span class="text-xs font-medium"
+                                                [class.text-success]="asset.isVisibleForNonLogin"
+                                                [class.text-error]="!asset.isVisibleForNonLogin">
+                                                {{ asset.isVisibleForNonLogin ? 'Aktif' : 'Pasif' }}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="text-center" *ngIf="canManageAssets">
+                                        <div class="form-control">
+                                            <label class="cursor-pointer label justify-center">
+                                                <input type="checkbox" class="toggle toggle-success"
+                                                    [checked]="asset.isVisibleForNonLogin"
+                                                    (change)="toggleAssetVisibilityForNonLogins(asset, $event)"
+                                                    [disabled]="false">
+                                            </label>
+                                        </div>
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </ng-container>
+                </ng-container>
+                <!-- Boş Durum -->
+                <ng-template #emptyState>
+                    <div class="flex flex-col items-center justify-center py-16 px-4">
+                        <div class="w-24 h-24 mb-4 rounded-full bg-base-300 flex items-center justify-center">
+                            <svg class="w-12 h-12 text-base-content/30" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">Henüz Asset Bulunamadı</h3>
+                        <p class="text-sm text-base-content/60 text-center max-w-md">
+                            Sisteme henüz herhangi bir kripto para varlığı eklenmemiş.
+                        </p>
+                        <button class="btn btn-primary mt-4" *ngIf="canManageAssets" (click)="createAsset()">
+                            <svg class=" w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Yeni Asset Ekle
+                        </button>
+                    </div>
+                </ng-template>
+            </div>
+
+            <!-- Alt Bilgi Çubuğu -->
+            <div class="bg-base-100 border-t border-base-300 px-6 py-3" *ngIf="assets!.items!.length! > 0">
+                <div class="flex justify-between items-center text-sm">
+                    <div class="flex items-center gap-4">
+                        <span class="text-base-content/60">
+                            Toplam <span class="font-semibold text-base-content">{{ assets!.totalCount }}</span> asset
+                        </span>
+                        <span class="text-base-content/60">
+                            Sayfa <span class="font-semibold text-base-content">{{ assets!.page }}</span>
+                        </span>
+                    </div>
+
+                    <!-- Durum Göstergeleri -->
+                    <div class="flex gap-4 text-xs">
+                        <span class="flex items-center gap-2">
+                            <div class="w-2 h-2 bg-success rounded-full animate-pulse"></div>
+                            <span class="text-base-content/60">Aktif</span>
+                        </span>
+                        <span class="flex items-center gap-2">
+                            <div class="w-2 h-2 bg-error rounded-full"></div>
+                            <span class="text-base-content/60">Pasif</span>
+                        </span>
+                        <span class="flex items-center gap-2" *ngIf="canManageAssets">
+                            <svg class="w-3 h-3 text-warning" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-base-content/60">Yönetim Yetkisi</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="pt-4">
+    <app-create-asset-modal #assetModal (assetCreated)="onAssetCreated($event)"></app-create-asset-modal>
+
+</div>

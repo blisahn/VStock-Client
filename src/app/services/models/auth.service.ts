@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
+import { BehaviorSubject } from 'rxjs';
 
 interface JwtPayload {
   "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"?: string | string[];
@@ -14,13 +15,16 @@ interface JwtPayload {
 })
 export class AuthService {
 
-  private _payload: JwtPayload | null = null;
 
+  private _payload: JwtPayload | null = null;
+  private _auth$ = new BehaviorSubject<boolean>(false);
+  authChanges$ = this._auth$.asObservable();
   constructor() {
 
     const token = this.accessToken;
     if (token && !this.isTokenExpired(token)) {
       this._payload = jwtDecode<JwtPayload>(token);
+      this._auth$.next(true);
     }
 
   }
@@ -45,20 +49,31 @@ export class AuthService {
   }
 
   setTokens(access: string, refresh: string) {
-
     sessionStorage.setItem('accessToken', access);
     sessionStorage.setItem('refreshToken', refresh);
-    this._payload = jwtDecode<JwtPayload>(access); // <<< kritik
+    try { this._payload = jwtDecode<JwtPayload>(access); } catch { this._payload = null; }
+    this._auth$.next(this.isAuthenticated());
+  }
+  setDates(expiration: string | Date, refreshTokenExpiresAtUtc: string | Date) {
+    const exp = typeof expiration === 'string' ? new Date(expiration) : expiration;
+    const rt = typeof refreshTokenExpiresAtUtc === 'string' ? new Date(refreshTokenExpiresAtUtc) : refreshTokenExpiresAtUtc;
+
+    if (isNaN(exp.getTime()) || isNaN(rt.getTime())) {
+      console.error('Invalid date(s) from server', { expiration, refreshTokenExpiresAtUtc });
+      return;
+    }
+
+    localStorage.setItem('expiration', exp.toISOString());
+    localStorage.setItem('refreshTokenExpirationDate', rt.toISOString());
   }
 
   clearTokens() {
-
     sessionStorage.removeItem('accessToken');
     sessionStorage.removeItem('refreshToken');
     localStorage.removeItem('expiration');
     localStorage.removeItem('refreshTokenExpirationDate');
-    this._payload = null; // <<< ekle
-
+    this._payload = null;
+    this._auth$.next(false);
   }
 
   private isTokenExpired(token: string | null): boolean {

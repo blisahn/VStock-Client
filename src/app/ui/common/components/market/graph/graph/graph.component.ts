@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
-import { GraphQuote } from "../../../../../../contract/market/common/GraphQuote";
+import { GraphQuote } from "../../../../../../contract/market/common/crypto/GraphQuote";
 import { createChart, IChartApi, ISeriesApi, CandlestickData, CandlestickSeries, UTCTimestamp, } from 'lightweight-charts';
 import { CommonModule } from "@angular/common";
 import { SocketService } from "../../../../../../services/models/socket/socket.service";
@@ -153,7 +153,6 @@ export class GraphComponent implements AfterViewInit, OnDestroy, OnInit {
     this.candlestickSeries.setData(candlestickData);
     this.candleData = candlestickData;
 
-    // Veri yüklendikten sonra anlık güncellemeler için gruba katıl
     await this.signalR.join(this.signalR.kline(this.symbol, this.interval));
     this.toastrService.showToastr(`${this.symbol} için ${this.interval} verisi yüklendi.`, "Grafik Hazır", {
       type: ToastrType.Succes,

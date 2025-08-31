@@ -18,27 +18,13 @@ export const httpErrorHandlerInterceptorFn: HttpInterceptorFn = (req, next) => {
                 error?.error?.title ??
                 error.title ?? 'Bilinmeyen hata basligi';
             switch (error.status) {
-
                 case 400:
-                    toastrService.showToastr(message, title, { type: ToastrType.Warning, position: ToastrPosition.TopRight });
-                    break;
-                case 401:
-                    toastrService.showToastr(message, title, { type: ToastrType.Warning, position: ToastrPosition.TopRight });
-                    break;
                 case 403:
-                    toastrService.showToastr(message, title, { type: ToastrType.Warning, position: ToastrPosition.TopRight });
-                    break;
                 case 404:
-                    toastrService.showToastr(message, title, { type: ToastrType.Warning, position: ToastrPosition.TopRight });
-                    break;
                 case 422:
-                    toastrService.showToastr(message, title, { type: ToastrType.Warning, position: ToastrPosition.TopRight });
-                    break;
                 case 500:
-                    toastrService.showToastr(message, title, { type: ToastrType.Warning, position: ToastrPosition.TopRight });
-                    break;
                 default:
-                    toastrService.showToastr("Beklenmeyen bir hata ile kasilasildi", "Hata!", { type: ToastrType.Warning, position: ToastrPosition.TopRight });
+                    toastrService.showToastr(message, title, { type: ToastrType.Warning, position: ToastrPosition.TopRight });
                     break;
             }
             return throwError(() => error); // <-- önemli

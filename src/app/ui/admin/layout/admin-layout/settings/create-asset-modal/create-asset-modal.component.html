@@ -1,0 +1,130 @@
+<!-- Asset Modal Component HTML -->
+<article>
+    <!-- Modal Toggle Input (Invisible) -->
+    <input class="modal-toggle" id="asset-modal" type="checkbox" [checked]="showAssetModal"
+        (change)="onModalToggle($event)" />
+
+    <!-- Modal Structure -->
+    <div class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box bg-base-100 relative max-w-lg">
+            <!-- Close Button -->
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-3 top-3" (click)="closeAssetModal()">
+                ✕
+            </button>
+
+            <!-- Modal Header -->
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-base-content mb-2">Yeni Varlik Ekle</h2>
+                <p class="text-base-content/60">Sisteme yeni bir varlik ekleyin</p>
+            </div>
+
+            <!-- Asset Form -->
+            <form [formGroup]="assetForm" (ngSubmit)="createAsset(assetForm.value)" class="space-y-4">
+                <!-- Asset Adı -->
+                <div class="form-control w-full">
+                    <label class="label">
+                        <span class="label-text font-medium">Varlik Kaynagi</span>
+                    </label>
+                    <div class="relative">
+                        <input type="text" class="input input-bordered w-full pl-10 h-12" formControlName="source"
+                            placeholder="Bitcoin, Ethereum vb." />
+                        <span class="absolute inset-y-0 left-3 flex items-center">
+                            <svg class="w-5 h-5 text-base-content/40" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
+                                </path>
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="label"
+                        *ngIf="assetForm.get('name')?.invalid && (assetForm.get('name')?.dirty || assetForm.get('name')?.touched)">
+                        <span class="label-text-alt text-error">Varlik adi gereklidir adı gereklidir.</span>
+                    </div>
+                </div>
+
+                <!-- Asset Kodu/Sembol -->
+                <div class="form-control w-full">
+                    <label class="label">
+                        <span class="label-text font-medium">Asset Kodu</span>
+                    </label>
+                    <div class="relative">
+                        <input type="text" class="input input-bordered w-full pl-10 h-12" formControlName="code"
+                            placeholder="BTC, ETH, ADA vb." />
+                        <span class="absolute inset-y-0 left-3 flex items-center">
+                            <svg class="w-5 h-5 text-base-content/40" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="label"
+                        *ngIf="assetForm.get('code')?.invalid && (assetForm.get('code')?.dirty || assetForm.get('code')?.touched)">
+                        <span class="label-text-alt text-error">Varlik kodu gereklidir.</span>
+                    </div>
+                </div>
+
+                <!-- Asset Sınıfı -->
+                <div class="form-control w-full">
+                    <label class="label">
+                        <span class="label-text font-medium">Asset Sınıfı</span>
+                    </label>
+                    <select class="select select-bordered w-full h-12" formControlName="assetClass">
+                        <option disabled value="">Asset sınıfı seçin</option>
+                        <option value="CRYPTO">Kripto Para</option>
+                        <option value="STOCK">Hisse</option>
+                    </select>
+                    <div class="label"
+                        *ngIf="assetForm.get('assetClass')?.invalid && (assetForm.get('assetClass')?.dirty || assetForm.get('assetClass')?.touched)">
+                        <span class="label-text-alt text-error">Varlik sınıfı seçimi gereklidir.</span>
+                    </div>
+                </div>
+
+
+                <!-- Aktiflik Durumu -->
+                <div class="form-control w-full">
+                    <label class="cursor-pointer label justify-start gap-3">
+                        <input type="checkbox" class="toggle toggle-success" formControlName="isActive" checked />
+                        <span class="label-text font-medium">Varlik aktif durumda başlasın</span>
+                    </label>
+                    <div class="label">
+                        <span class="label-text-alt text-base-content/60">
+                            Pasif varlik'lar kullanıcılar tarafından görülmez
+                        </span>
+                    </div>
+                </div>
+                <div class="form-control w-full">
+                    <label class="cursor-pointer label justify-start gap-3">
+                        <input type="checkbox" class="toggle toggle-success" formControlName="isVisibleForNonLogin"
+                            checked />
+                        <span class="label-text font-medium">Varlık giriş yapmayan kullanıcılar tarafından
+                            görüntülenebilsin</span>
+                    </label>
+                    <div class="label">
+                        <span class="label-text-alt text-base-content/60">
+                            Pasif varlik'lar kullanıcılar tarafından görülmez
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-3 pt-6">
+                    <button type="button" class="btn btn-ghost flex-1 h-12" (click)="closeAssetModal()">
+                        İptal
+                    </button>
+                    <button type="submit" class="btn btn-primary flex-1 h-12" [disabled]="assetForm.invalid">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Asset Ekle
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Modal Backdrop -->
+        <label class="modal-backdrop" (click)="closeAssetModal()"></label>
+    </div>
+</article>

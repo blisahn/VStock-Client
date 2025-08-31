@@ -1,10 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { SignalRService } from '../../../../services/signalR/signal-r.service';
 import { CommonModule } from '@angular/common';
-import { CryptoQuote } from '../../../../contract/market/common/CryptoQuote';
+import { CryptoQuote } from '../../../../contract/market/common/crypto/CryptoQuote';
 import { FormsModule } from "@angular/forms";
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { UserAuthService } from '../../../../services/models/user/user-auth.service';
+import { AuthService } from '../../../../services/models/auth.service';
 
 type Trend = 'up' | 'down' | 'same';
 
@@ -23,18 +25,27 @@ interface RowQuote extends CryptoQuote {
 export class MarketComponent implements OnInit, OnDestroy {
   marketData: RowQuote[] = [];
   lastUpdated: string | null = null;
-
+  signalRKey: string | null = null;
   private subs: Subscription[] = [];
 
-  constructor(private signalR: SignalRService) { }
+  constructor(private signalR: SignalRService, public authService: AuthService) { }
 
   async ngOnInit(): Promise<void> {
-    await this.signalR.startConnection('http://localhost:5217/crypto-hub');
+    console.log("dusun bakem")
+    this.subs.forEach(s => s.unsubscribe());
+    this.signalR.leave(this.signalR.marketAllTrades());
+    if (this.authService.isAuthenticated()) {
+      await this.signalR.startConnection('http://localhost:5217/private-crypto-hub');
+      this.signalRKey = 'ReceiveBinanceMarketData';
+    } else {
+      await this.signalR.startConnection('http://localhost:5217/public-crypto-hub');
+      this.signalRKey = 'ReceivePublicBinanceMarketData';
+    }
 
     await this.signalR.join(this.signalR.marketAllTrades());
 
     const sub = this.signalR
-      .on<CryptoQuote>('ReceiveBinanceMarketData')
+      .on<CryptoQuote>(this.signalRKey)
       .subscribe((incoming) => {
         if (!incoming) return;
         this.processIncomingData(incoming);

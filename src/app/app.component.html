@@ -36,15 +36,11 @@
             </li>
         </ul>
     </div>
-
     <div class="navbar-end">
-        <ng-container *ngIf="authService.isAuthenticated(); else guestLinks">
-            <app-avatar></app-avatar>
+        <ng-container *ngIf="(authService.authChanges$ | async); else guestLinks"> <app-avatar></app-avatar>
         </ng-container>
         <ng-template #guestLinks>
-            <a class="btn btn-primary btn-sm" routerLink="/login" routerLinkActive="active">
-                Giriş Yap
-            </a>
+            <a class="btn btn-primary btn-sm" routerLink="/login" routerLinkActive="active">Giriş Yap</a>
         </ng-template>
     </div>
 </header>

@@ -5,18 +5,19 @@ import { CustomDialogService } from '../../../../../../../services/common/custom
 import { UserService } from '../../../../../../../services/models/user/user.service';
 import { CommonModule } from '@angular/common';
 import { UserAuthService } from '../../../../../../../services/models/user/user-auth.service';
-import { FetchUserDto } from '../../../../../../../contract/user/admin/FetchUserDto';
-import { UpdateUserDto } from '../../../../../../../contract/user/admin/UpdateUserDto';
-import { AssignRoleDto } from '../../../../../../../contract/user/admin/AssignRoleDto';
+import { AssignRoleDto } from '../../../../../../../contract/user/admin/user/AssignRoleDto';
+import { FetchUserDto } from '../../../../../../../contract/user/admin/user/FetchUserDto';
+import { UpdateUserDto } from '../../../../../../../contract/user/admin/user/UpdateUserDto';
+
 
 
 
 
 @Component({
-    selector: 'app-user-details',
-    imports: [CommonModule, ReactiveFormsModule],
-    templateUrl: './user-details.component.html',
-    styleUrl: './user-details.component.css'
+  selector: 'app-user-details',
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './user-details.component.html',
+  styleUrl: './user-details.component.css'
 })
 export class UserDetailsComponent implements OnInit {
 
@@ -147,8 +148,7 @@ export class UserDetailsComponent implements OnInit {
       this.initialValue = { ...payload, roles: [] };
       this.profileForm.markAsPristine();
     } catch (err) {
-      this.userAuth.refreshTokenLogin();
-      console.error(err);
+      throw (err);
     } finally {
       this.isSaving = false;
     }

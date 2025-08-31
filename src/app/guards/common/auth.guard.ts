@@ -6,19 +6,22 @@ import { UserAuthService } from "../../services/models/user/user-auth.service";
 
 
 
-export const AuthGuard: CanActivateFn = (route, state) => {
+export const AuthGuard: CanActivateFn = async (route, state) => {
     const auth = inject(AuthService);
     const router = inject(Router);
     const toastr = inject(CustomToastrService);
     const userAuthService = inject(UserAuthService);
 
-    if (auth.isAuthenticated()) {
-        return true;
-    }
+    if (auth.isAuthenticated()) return true;
+
     if (!auth.isRefreshExpired()) {
-        userAuthService.refreshTokenLogin();
-        return true;
+        try {
+            const ok = await userAuthService.refreshTokenLogin();
+            if (ok) return true;
+        } catch { }
     }
+
+
     // Refresh de olmadıysa login'e at
     toastr.showToastr('Oturum acmaniz gerekiyor', 'Oturum acin.', { type: ToastrType.Warning, position: ToastrPosition.TopRight });
     return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
